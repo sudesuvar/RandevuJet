@@ -6,13 +6,20 @@
 //
 
 import SwiftUI
+import Firebase
 
 @main
 struct RandevuJetApp: App {
+    @StateObject var authViewModel = AuthViewModel()
+    
+    
+    init() {
+        FirebaseApp.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
-            //splashScreen()
-            loginScreen()
+            splashScreen().environmentObject(authViewModel)
         }
     }
 }
