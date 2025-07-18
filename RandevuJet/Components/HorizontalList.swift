@@ -13,11 +13,11 @@ struct HorizontalList: View {
     var onShowAllTapped: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Text("Kuaförler")
                     .font(.title2)
-                    .fontWeight(.bold)
+                    .fontWeight(.semibold)
 
                 Spacer()
 
@@ -47,24 +47,28 @@ struct HairdresserRow: View {
     let hairdresser: HairDresser
 
     var body: some View {
-        VStack {
-            Image(hairdresser.photo ?? "placeholder_image") // varsayılan resim adı
+        VStack(spacing: 8) {
+            Image(hairdresser.photo ?? "placeholder_image")
                 .resizable()
+                .aspectRatio(contentMode: .fill)
                 .frame(width: 120, height: 120)
+                .clipped()
                 .cornerRadius(12)
-                .shadow(radius: 3)
+                .shadow(color: .gray.opacity(0.3), radius: 4, x: 0, y: 2)
             
-            Text(hairdresser.salonName ?? "Bilinmeyen Salon")
-                .font(.headline)
-            
-            Text(hairdresser.text ?? "")
-                .font(.subheadline)
-                .foregroundColor(.gray)
+            VStack(spacing: 8) {
+                Text(hairdresser.salonName ?? "Bilinmeyen Salon")
+                    .font(.headline)
+                    .lineLimit(1)
+                
+                Text(hairdresser.text ?? "")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+            }
         }
         .frame(width: 140)
-        .padding(.vertical)
+        .padding(.vertical, 4)
     }
 }
-
-
-

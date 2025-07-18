@@ -16,7 +16,7 @@ struct HomeScreen: View {
     let sampleHairdressers = [
         HairDresser(
             id: UUID().uuidString,
-            salonName: "Ayşe Yılmaz",
+            salonName: "Prenses ",
             email: "ayse@example.com",
             role: "Kuaför",
             address: "İstanbul",
@@ -27,7 +27,7 @@ struct HomeScreen: View {
         ),
         HairDresser(
             id: UUID().uuidString,
-            salonName: "Mehmet Demir",
+            salonName: "Şahane",
             email: "mehmet@example.com",
             role: "Kuaför",
             address: "Ankara",
@@ -48,9 +48,26 @@ struct HomeScreen: View {
             text: "Saç Stüdyosu"
         )
     ]
-
-
-
+    let myAppointments = [
+        Appointment(
+            id: UUID().uuidString,
+            customerName: "Ali Veli",
+            hairdresserName: "Prenses Güzellik Merkezi",
+            serviceName: "Saç Kesimi",
+            date: "20 Temmuz 2025",
+            time: "14:00",
+            photo: "logo"
+        ),
+        Appointment(
+            id: UUID().uuidString,
+            customerName: "Fatma Kaya",
+            hairdresserName: "Elif Kaya Saç Stüdyosu",
+            serviceName: "Saç Boyama",
+            date: "22 Temmuz 2025",
+            time: "10:30",
+            photo: "logo"
+        )
+    ]
     var body: some View {
         VStack(spacing: 0) {
             ScrollView {
@@ -61,7 +78,14 @@ struct HomeScreen: View {
                         showAll = true
                     }
 
-                    // Diğer içerikler
+                    VerticalList(
+                        appointments: myAppointments,
+                        titleProvider: { $0.hairdresserName },
+                        subtitleProvider: { $0.serviceName },
+                        detailProvider: { "\($0.date) • \($0.time)" },
+                        imageProvider: { $0.photo }
+                    )
+
                 }
             }
             .background(Color(.systemGroupedBackground))
