@@ -3,22 +3,26 @@
 //  RandevuJet
 //
 //  Created by sude on 16.07.2025.
-// 
+//
 
 import Foundation
 import SwiftUI
 
+
+
 struct splashScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeViewModel: ThemeViewModel
     @State private var animateImage = false
     @State private var animateText = false
     @State private var animateButtons = false
     
     var body: some View {
         NavigationView {
-            Group {
                 if authViewModel.userSession != nil {
-                    profileScreen()
+                    //profileScreen()
+                      //  .preferredColorScheme(themeViewModel.isDarkMode ? .dark : //.light)
+                    MainTabView()
                 } else {
                     VStack(spacing: 20) {
                         Image("splashImage")
@@ -53,8 +57,8 @@ struct splashScreen: View {
                         
                         VStack(spacing: 12) {
                             // Kayıt Ol NavigationLink
-                            NavigationLink(destination: registerScreen()) {
-                                Text("Kayıt Ol")
+                            NavigationLink(destination: loginScreen(userType: .customer)) {
+                                Text("Müşteri Girişi")
                                     .font(.system(size: 16, weight: .bold))
                                     .foregroundColor(.black)
                                     .frame(maxWidth: .infinity)
@@ -64,8 +68,8 @@ struct splashScreen: View {
                             }
                             
                             // Giriş Yap NavigationLink
-                            NavigationLink(destination: loginScreen()) {
-                                Text("Giriş Yap")
+                            NavigationLink(destination: loginScreen(userType: .hairdresser)) {
+                                Text("Kuaför Girişi")
                                     .font(.system(size: 16, weight: .bold))
                                     .foregroundColor(.black)
                                     .frame(maxWidth: .infinity)
@@ -90,12 +94,14 @@ struct splashScreen: View {
                     }
                 }
             }
-        }
-        .navigationViewStyle(StackNavigationViewStyle()) // iPad'de daha iyi görünüm için
+        .navigationViewStyle(StackNavigationViewStyle())
+        .preferredColorScheme(themeViewModel.isDarkMode ? .dark : .light)
     }
 }
 
 #Preview {
     splashScreen()
-        .environmentObject(AuthViewModel()) // Preview için gerekli
+        .environmentObject(AuthViewModel())
+        .environmentObject(ThemeViewModel())
+
 }

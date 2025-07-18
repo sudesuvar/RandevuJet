@@ -37,17 +37,40 @@ class AuthViewModel : ObservableObject{
         
     }
     
-    func createUser(withEmail email: String, password: String, fullName: String) async throws {
+    func createHairDresser(withEmail email: String, password: String, salonName: String, role: String) async throws {
+        do {
+            // Kullanıcı oluşturma
+            let result = try await Auth.auth().createUser(withEmail: email, password: password)
+            self.userSession = result.user
+            
+            // Kullanıcı modelini Firestore’a yazma
+            let newHairdresser = HairDresser(id: result.user.uid, salonName: salonName, email: email, role: role)
+            try Firestore.firestore()
+                .collection("hairdresser")
+                .document(result.user.uid)
+                .setData(from: newHairdresser)
+            
+            print("✅ Kuaför Firestore’a kaydedildi: \(newHairdresser)")
+            //try await fetchUserData()
+            
+        } catch {
+            print("❌ Kuaför oluşturma başarısız: \(error.localizedDescription)")
+            throw error // hatayı dışarı aktar, sessizce yutma
+        }
+    }
+
+    
+    func createUser(withEmail email: String, password: String, fullName: String, role: String) async throws {
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             self.userSession = result.user
             
-            let encoderUser = User(id: result.user.uid, nameSurname: fullName, email: email)
+            let encoderUser = User(id: result.user.uid, nameSurname: fullName, email: email, role: role)
             try Firestore.firestore().collection("users").document(result.user.uid).setData(from: encoderUser)
             print("User saved to Firestore: \(encoderUser)")
             try await fetchUserData()
         } catch {
-            print("debug failed: \(error.localizedDescription)")
+            print("debug failed create user: \(error.localizedDescription)")
         }
     }
 

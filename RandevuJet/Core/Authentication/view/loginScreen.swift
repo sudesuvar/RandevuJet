@@ -8,168 +8,183 @@
 import Foundation
 import SwiftUI
 
+enum UserType {
+    case customer
+    case hairdresser
+    case null
+}
+
 struct loginScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    var userType: UserType
     @State private var email = ""
     @State private var password = ""
     @State private var showForgotPassword = false
     @State private var isSecureField = true
     @State private var showAlert = false
     @State private var alertMessage = ""
-
+    
+    
+    
     var body: some View {
-        NavigationView {
-            VStack(spacing: 30) {
-                Spacer()
-
-                // Başlık
-                VStack(spacing: 4) {
-                    Image("logo")
-                        .font(.system(size: 60))
-                        .foregroundColor(.gray)
-
-                    Text("Giriş Yap")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.black)
-                }
-
-                // Giriş Formu
-                VStack(spacing: 16) {
-                    // E-posta
-                    TextField("E-posta", text: $email)
-                        .textFieldStyle(.plain)
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-
-                    // Şifre
-                    HStack {
-                        ZStack {
-                            TextField("Şifre", text: $password)
-                                .opacity(isSecureField ? 0 : 1)
-                            SecureField("Şifre", text: $password)
-                                .opacity(isSecureField ? 1 : 0)
-                        }
-                        .textFieldStyle(.plain)
-
-                        Button(action: {
-                            isSecureField.toggle()
-                        }) {
-                            Image(systemName: isSecureField ? "eye.slash" : "eye")
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(10)
-
-                    // Şifremi Unuttum
-                    HStack {
-                        Spacer()
-                        Button("Şifremi Unuttum") {
-                            showForgotPassword = true
-                        }
-                        .font(.footnote)
-                        .foregroundColor(.black)
-                    }
-                }
-                .padding(.horizontal, 32)
-
-                // Giriş Butonu
-                Button(action: {
-                    handleLogin()
-                    Task{
-                        try await authViewModel.signIn(withEmail: email, password: password)
-                    }
-                    
-                }) {
-                    Text("Giriş Yap")
-                        .font(.headline)
-                        .foregroundColor(.black)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                        .background(Color.yellow)
-                        .cornerRadius(10)
-                }
-                .padding(.horizontal, 32)
-                .disabled(email.isEmpty || password.isEmpty)
-                .opacity(email.isEmpty || password.isEmpty ? 0.6 : 1.0)
+        VStack(spacing: 30) {
+            Spacer()
+            
+            // Başlık
+            VStack(spacing: 4) {
+                Image("logo")
+                    .font(.system(size: 60))
+                    .foregroundColor(.gray)
                 
-                // Social Login Options
-                VStack(spacing: 15) {
-                    HStack {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.5))
-                            .frame(height: 1)
-                        
-                        Text("veya")
-                            .foregroundColor(.black)
-                            .font(.system(size: 14))
-                        
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.5))
-                            .frame(height: 1)
+                Text("Giriş Yap")
+                    .font(.title)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+            }
+            
+            // Giriş Formu
+            VStack(spacing: 16) {
+                // E-posta
+                TextField("E-posta", text: $email)
+                    .textFieldStyle(.plain)
+                    .keyboardType(.emailAddress)
+                    .autocapitalization(.none)
+                    .padding()
+                    .background(Color(.secondarySystemBackground))
+                    .cornerRadius(10)
+                
+                // Şifre
+                HStack {
+                    ZStack {
+                        TextField("Şifre", text: $password)
+                            .opacity(isSecureField ? 0 : 1)
+                        SecureField("Şifre", text: $password)
+                            .opacity(isSecureField ? 1 : 0)
                     }
-                    .padding(.horizontal, 32)
+                    .textFieldStyle(.plain)
                     
-                    HStack(spacing: 20) {
-                        // Google Login
-                        Button(action: {
-                            // Google login implementation
-                        }) {
-                            Image(systemName: "globe")
-                                .font(.system(size: 20))
-                                .foregroundColor(.white)
-                                .frame(width: 50, height: 50)
-                                .background(Color.red.opacity(0.8))
-                                .cornerRadius(25)
-                        }
-                        
-                        // Apple Login
-                        Button(action: {
-                            // Apple login implementation
-                        }) {
-                            Image(systemName: "apple.logo")
-                                .font(.system(size: 20))
-                                .foregroundColor(.white)
-                                .frame(width: 50, height: 50)
-                                .background(Color.black.opacity(0.8))
-                                .cornerRadius(25)
-                        }
-                        
-                        // Facebook Login
-                        Button(action: {
-                            // Facebook login implementation
-                        }) {
-                            Image(systemName: "f.circle.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(.white)
-                                .frame(width: 50, height: 50)
-                                .background(Color.blue.opacity(0.8))
-                                .cornerRadius(25)
-                        }
+                    Button(action: {
+                        isSecureField.toggle()
+                    }) {
+                        Image(systemName: isSecureField ? "eye.slash" : "eye")
+                            .foregroundColor(.gray)
                     }
                 }
-
+                .padding()
+                .background(Color(.secondarySystemBackground))
+                .cornerRadius(10)
+                
+                // Şifremi Unuttum
+                HStack {
+                    Spacer()
+                    Button("Şifremi Unuttum") {
+                        showForgotPassword = true
+                    }
+                    .font(.footnote)
+                    .foregroundColor(.black)
+                }
+            }
+            .padding(.horizontal, 32)
+            
+            // Giriş Butonu
+            Button(action: {
+                handleLogin()
+                Task{
+                    try await authViewModel.signIn(withEmail: email, password: password)
+                }
+                
+            }) {
+                Text("Giriş Yap")
+                    .font(.headline)
+                    .foregroundColor(.primary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(Color.yellow)
+                    .cornerRadius(10)
+            }
+            .padding(.horizontal, 32)
+            .disabled(email.isEmpty || password.isEmpty)
+            .opacity(email.isEmpty || password.isEmpty ? 0.6 : 1.0)
+            
+            // Social Login Options
+            VStack(spacing: 15) {
+                HStack {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.5))
+                        .frame(height: 1)
+                    
+                    Text("veya")
+                        .foregroundColor(.secondary)
+                        .font(.system(size: 14))
+                    
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.5))
+                        .frame(height: 1)
+                }
+                .padding(.horizontal, 32)
+                
+                HStack(spacing: 20) {
+                    // Google Login
+                    Button(action: {
+                        // Google login implementation
+                    }) {
+                        Image(systemName: "globe")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(25)
+                    }
+                    
+                    // Apple Login
+                    Button(action: {
+                        // Apple login implementation
+                    }) {
+                        Image(systemName: "apple.logo")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(25)
+                    }
+                    
+                    // Facebook Login
+                    Button(action: {
+                        // Facebook login implementation
+                    }) {
+                        Image(systemName: "f.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color(.secondarySystemBackground))
+                            .cornerRadius(25)
+                    }
+                    
+                }
+                
                 Spacer()
-
+                
                 // Kayıt Ol
                 HStack {
                     Text("Hesabın yok mu ?")
-                        .foregroundColor(.black)
-                    Button("Kayıt Ol") {
-                        // Kayıt ekranına git
+                        .foregroundColor(.secondary)
+                    NavigationLink(destination: {
+                        if userType == .customer {
+                            registerScreen()
+                        } else {
+                            hairdresserRegisterScreen()
+                        }
+                    }) {
+                        Text("Kayıt Ol")
+                            .foregroundColor(.blue)
+                            .fontWeight(.semibold)
                     }
-                    .fontWeight(.bold)
-                    .foregroundColor(.yellow)
+                    
                 }
                 .padding(.bottom, 16)
             }
             .padding(.top)
-            .background(Color.white)
+            .background(Color(.systemBackground))
             .ignoresSafeArea()
         }
         .sheet(isPresented: $showForgotPassword) {
@@ -344,6 +359,6 @@ struct ForgotPasswordView: View {
 // Preview
 struct loginScreenPreview: PreviewProvider {
     static var previews: some View {
-        loginScreen()
+        loginScreen(userType: .null)
     }
 }

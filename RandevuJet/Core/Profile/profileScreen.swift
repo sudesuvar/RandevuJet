@@ -10,6 +10,7 @@ import SwiftUI
 
 struct profileScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeViewModel: ThemeViewModel
     var body: some View {
         
         if let user = authViewModel.currentUser {
@@ -34,8 +35,47 @@ struct profileScreen: View {
                         }
                     }
                 }
+                //theme
+                Section() {
+                    HStack {
+                        Image(systemName: themeViewModel.isDarkMode ? "moon.fill" : "sun.max.fill")
+                            .foregroundColor(.gray)
+                        
+                        Text("Tema")
+                            .font(.subheadline)
+                        
+                        Spacer()
+                        
+                        Toggle("", isOn: $themeViewModel.isDarkMode)
+                            .labelsHidden()
+                    }
+                    .padding(.top, 2)
+                }
+                
+                // language
+                Section {
+                    HStack {
+                        // Bayrak ikonu (emoji)
+                        Text("🌐")
+                            .font(.title2)
+                        
+                        // Dil metni
+                        Text("Language")
+                            .font(.subheadline)
+                        
+                        Spacer()
+                        
+                        // Toggle içinde TR - EN metni
+                        Toggle(isOn: .constant(false)) {
+                        }
+                        .toggleStyle(SwitchToggleStyle(tint: .black))
+                    }
+                    .padding(.top, 2)
+                }
+                
+                
                 // Version
-                Section(header: Text("Version")) {
+                Section() {
                     HStack(alignment: .center, spacing: 8) {
                         Image(systemName: "info.circle")
                             .foregroundColor(.gray)
@@ -52,6 +92,7 @@ struct profileScreen: View {
                     .padding(.top, 4)
                 }
                 
+                
                 // logout
                 Section {
                     Button(action: {
@@ -65,16 +106,16 @@ struct profileScreen: View {
                     }) {
                         HStack {
                             Image(systemName: "rectangle.portrait.and.arrow.right")
-                                .foregroundColor(.black)
+                                .foregroundColor(.gray)
                             Text("Çıkış Yap")
-                                .foregroundColor(.black)
+                                .foregroundColor(.gray)
                         }
                     }
                 }
             }
-            
-        }else{
-            Text("Yükleniyor...")
+        }
+        else{
+            ProgressView()
                 .onAppear {
                     Task {
                         do {
@@ -83,11 +124,15 @@ struct profileScreen: View {
                             print("Hata: \(error)")
                         }
                     }
-                }        }
+                }
+        }
+        
         
     }
 }
 
 #Preview {
     profileScreen()
+        .environmentObject(AuthViewModel())
+        .environmentObject(ThemeViewModel())
 }

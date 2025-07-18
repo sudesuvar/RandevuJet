@@ -11,7 +11,7 @@ import Firebase
 @main
 struct RandevuJetApp: App {
     @StateObject var authViewModel = AuthViewModel()
-    
+    @StateObject private var themeViewModel = ThemeViewModel()
     
     init() {
         FirebaseApp.configure()
@@ -19,7 +19,10 @@ struct RandevuJetApp: App {
     
     var body: some Scene {
         WindowGroup {
-            splashScreen().environmentObject(authViewModel)
+            splashScreen()
+                .environmentObject(authViewModel)
+                .environmentObject(themeViewModel)
+                .preferredColorScheme(themeViewModel.isDarkMode ? .dark : .light)
         }
     }
 }

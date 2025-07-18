@@ -1,26 +1,29 @@
 //
-//  User.swift
+//  HairDresser.swift
 //  RandevuJet
 //
-//  Created by sude on 16.07.2025.
+//  Created by sude on 18.07.2025.
 //
 
 import Foundation
 
-struct User:Identifiable, Codable {
+struct HairDresser:Identifiable, Codable {
     var id: String
-    var nameSurname: String
+    var salonName: String
     var email: String
     var role: String
+    var address: String?
+    var phone: String?
+    var photo: String?
+    var employeesNumber: Int?
+    var text: String?
     
     var initials: String {
         let formatter = PersonNameComponentsFormatter()
-        if let components = formatter.personNameComponents(from: nameSurname) {
+        if let components = formatter.personNameComponents(from: salonName) {
             formatter.style = .abbreviated
             return formatter.string(from: components)
         }
         return ""
     }
 }
-
-
