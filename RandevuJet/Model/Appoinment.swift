@@ -15,5 +15,8 @@ struct Appointment: Identifiable {
     let date: String
     let time: String
     let photo: String?
+    let status: String?
+    let createdAt: Date?
+    
 }
 

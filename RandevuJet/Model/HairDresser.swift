@@ -17,6 +17,7 @@ struct HairDresser:Identifiable, Codable {
     var photo: String?
     var employeesNumber: Int?
     var text: String?
+    var createdAt: Date?
     
     var initials: String {
         let formatter = PersonNameComponentsFormatter()

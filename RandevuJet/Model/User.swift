@@ -12,6 +12,7 @@ struct User:Identifiable, Codable {
     var nameSurname: String
     var email: String
     var role: String
+    var createdAt: Date
     
     var initials: String {
         let formatter = PersonNameComponentsFormatter()

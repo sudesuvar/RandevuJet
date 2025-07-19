@@ -16,6 +16,7 @@ enum UserType {
 
 struct loginScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeViewModel: ThemeViewModel
     var userType: UserType
     @State private var email = ""
     @State private var password = ""
@@ -32,10 +33,16 @@ struct loginScreen: View {
             
             // Başlık
             VStack(spacing: 4) {
-                Image("logo")
-                    .font(.system(size: 60))
-                    .foregroundColor(.gray)
-                
+                if(themeViewModel.isDarkMode){
+                    Image("darklogo")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                    //
+                }else{
+                    Image("logo")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                }
                 Text("Giriş Yap")
                     .font(.title)
                     .fontWeight(.semibold)
@@ -132,7 +139,7 @@ struct loginScreen: View {
                             .font(.system(size: 20))
                             .foregroundColor(.white)
                             .frame(width: 50, height: 50)
-                            .background(Color(.secondarySystemBackground))
+                            .background(Color(.red))
                             .cornerRadius(25)
                     }
                     
@@ -144,7 +151,7 @@ struct loginScreen: View {
                             .font(.system(size: 20))
                             .foregroundColor(.white)
                             .frame(width: 50, height: 50)
-                            .background(Color(.secondarySystemBackground))
+                            .background(Color(.black))
                             .cornerRadius(25)
                     }
                     
@@ -156,7 +163,8 @@ struct loginScreen: View {
                             .font(.system(size: 20))
                             .foregroundColor(.white)
                             .frame(width: 50, height: 50)
-                            .background(Color(.secondarySystemBackground))
+                            .background(Color(.blue))
+                            .background(.primary)
                             .cornerRadius(25)
                     }
                     

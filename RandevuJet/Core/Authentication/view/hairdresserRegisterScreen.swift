@@ -10,6 +10,7 @@ import SwiftUI
 
 struct hairdresserRegisterScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeViewModel: ThemeViewModel
     @State private var salonName = ""
     @State private var email = ""
     @State private var password = ""
@@ -25,10 +26,18 @@ struct hairdresserRegisterScreen: View {
 
                 // Başlık
                 VStack(spacing: 4) {
-                    Image("logo")
-                        .font(.system(size: 60))
-                        .foregroundColor(.gray)
-
+                    
+                    if(themeViewModel.isDarkMode){
+                        Image("darklogo")
+                            .font(.system(size: 60))
+                            .foregroundColor(.gray)
+                        //
+                    }else{
+                        Image("logo")
+                            .font(.system(size: 60))
+                            .foregroundColor(.gray)
+                    }
+                    
                     Text("Yeni Üyelik Oluştur")
                         .font(.title)
                         .fontWeight(.semibold)

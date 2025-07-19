@@ -10,9 +10,9 @@ import Foundation
 import SwiftUI
 
 struct HomeScreen: View {
-
+    
     @State private var showAll = false
-
+    
     let sampleHairdressers = [
         HairDresser(
             id: UUID().uuidString,
@@ -56,7 +56,9 @@ struct HomeScreen: View {
             serviceName: "Saç Kesimi",
             date: "20 Temmuz 2025",
             time: "14:00",
-            photo: "logo"
+            photo: "logo",
+            status: "active",
+            createdAt: Date()
         ),
         Appointment(
             id: UUID().uuidString,
@@ -65,33 +67,39 @@ struct HomeScreen: View {
             serviceName: "Saç Boyama",
             date: "22 Temmuz 2025",
             time: "10:30",
-            photo: "logo"
+            photo: "logo",
+            status: "active",
+            createdAt: Date()
         )
     ]
     var body: some View {
-        VStack(spacing: 0) {
-            ScrollView {
-                VStack(spacing: 16) {
-                    Header()
-
-                    HorizontalList(hairdressers: sampleHairdressers) {
-                        showAll = true
+        NavigationView {
+            VStack(spacing: 0) {
+                ScrollView {
+                    VStack(spacing: 16) {
+                        Header()
+                        
+                        HorizontalList(hairdressers: sampleHairdressers) {
+                            showAll = true
+                        }
+                        
+                        VerticalList(
+                            appointments: myAppointments,
+                            titleProvider: { $0.hairdresserName },
+                            subtitleProvider: { $0.serviceName },
+                            detailProvider: { "\($0.date) • \($0.time)" },
+                            imageProvider: { $0.photo }
+                        )
+                        
                     }
-
-                    VerticalList(
-                        appointments: myAppointments,
-                        titleProvider: { $0.hairdresserName },
-                        subtitleProvider: { $0.serviceName },
-                        detailProvider: { "\($0.date) • \($0.time)" },
-                        imageProvider: { $0.photo }
-                    )
-
+                }
+                .background(Color(.systemGroupedBackground))
+                .navigationDestination(isPresented: $showAll) {
+                    //AllHairdressersView(hairdressers: sampleHairdressers)
                 }
             }
+            .frame(maxHeight: .infinity, alignment: .top)
             .background(Color(.systemGroupedBackground))
-            .navigationDestination(isPresented: $showAll) {
-                //AllHairdressersView(hairdressers: sampleHairdressers)
-            }
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .background(Color(.systemGroupedBackground))

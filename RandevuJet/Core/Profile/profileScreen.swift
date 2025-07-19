@@ -28,7 +28,7 @@ struct profileScreen: View {
                             Text(user.nameSurname)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                                .padding(.top, 4)
+                                .padding(.top, 2)
                             Text(user.email)
                                 .font(.footnote)
                                 .accentColor(.gray)
@@ -48,29 +48,28 @@ struct profileScreen: View {
                         
                         Toggle("", isOn: $themeViewModel.isDarkMode)
                             .labelsHidden()
+                        //
                     }
-                    .padding(.top, 2)
                 }
                 
                 // language
                 Section {
                     HStack {
-                        // Bayrak ikonu (emoji)
                         Text("🌐")
                             .font(.title2)
                         
-                        // Dil metni
-                        Text("Language")
+                        // DEĞİŞECEK
+                        Text("Uygulama Dili")
                             .font(.subheadline)
                         
                         Spacer()
                         
-                        // Toggle içinde TR - EN metni
+                        // Toggle
                         Toggle(isOn: .constant(false)) {
                         }
                         .toggleStyle(SwitchToggleStyle(tint: .black))
                     }
-                    .padding(.top, 2)
+                    
                 }
                 
                 
@@ -89,30 +88,55 @@ struct profileScreen: View {
                             .font(.footnote)
                             .foregroundColor(.gray)
                     }
-                    .padding(.top, 4)
                 }
                 
                 
                 // logout
                 Section {
+                    HStack(alignment: .center, spacing: 8) {
+                        Button(action: {
+                            Task {
+                                do {
+                                    try await authViewModel.signOut()
+                                } catch {
+                                    print("Debug Failed logout: \(error)")
+                                }
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "rectangle.portrait.and.arrow.right")
+                                    .foregroundColor(.gray)
+                                Text("Çıkış Yap")
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                    }
+                }
+                
+                // delete user
+                Section {
                     Button(action: {
                         Task {
                             do {
-                                try await authViewModel.signOut()
+                                try await authViewModel.deleteUser()
                             } catch {
-                                print("Çıkış yaparken hata oluştu: \(error)")
+                                print("Debug Failed delete user: \(error)")
                             }
                         }
                     }) {
                         HStack {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                            Image(systemName: "trash")
                                 .foregroundColor(.gray)
-                            Text("Çıkış Yap")
-                                .foregroundColor(.gray)
+                            Text("Hesabını Sil")
+                                .foregroundColor(.primary)
                         }
                     }
                 }
             }
+            .listSectionSpacing(16)
+            //.listRowInsets(EdgeInsets(top: 0, leading: 5, bottom: 8, trailing: 8))
+            .frame(maxHeight: .infinity, alignment: .top)
+            .background(Color(.systemGroupedBackground))
         }
         else{
             ProgressView()
@@ -121,7 +145,7 @@ struct profileScreen: View {
                         do {
                             try await authViewModel.fetchUserData()
                         } catch {
-                            print("Hata: \(error)")
+                            print("Error fetching user data: \(error)")
                         }
                     }
                 }

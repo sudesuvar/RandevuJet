@@ -18,7 +18,6 @@ class AuthViewModel : ObservableObject{
     //init
     init() {
         self.userSession = Auth.auth().currentUser
-        
         Task{
             try await fetchUserData()
         }
@@ -44,28 +43,28 @@ class AuthViewModel : ObservableObject{
             self.userSession = result.user
             
             // Kullanıcı modelini Firestore’a yazma
-            let newHairdresser = HairDresser(id: result.user.uid, salonName: salonName, email: email, role: role)
+            let newHairdresser = HairDresser(id: result.user.uid, salonName: salonName, email: email, role: role, createdAt: Date())
             try Firestore.firestore()
                 .collection("hairdresser")
                 .document(result.user.uid)
                 .setData(from: newHairdresser)
             
-            print("✅ Kuaför Firestore’a kaydedildi: \(newHairdresser)")
+            print("Success create hairdresser: \(newHairdresser)")
             //try await fetchUserData()
             
         } catch {
-            print("❌ Kuaför oluşturma başarısız: \(error.localizedDescription)")
-            throw error // hatayı dışarı aktar, sessizce yutma
+            print("Debug Failed to create hairdresser: \(error.localizedDescription)")
+            throw error
         }
     }
-
+    
     
     func createUser(withEmail email: String, password: String, fullName: String, role: String) async throws {
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             self.userSession = result.user
             
-            let encoderUser = User(id: result.user.uid, nameSurname: fullName, email: email, role: role)
+            let encoderUser = User(id: result.user.uid, nameSurname: fullName, email: email, role: role, createdAt:Date())
             try Firestore.firestore().collection("users").document(result.user.uid).setData(from: encoderUser)
             print("User saved to Firestore: \(encoderUser)")
             try await fetchUserData()
@@ -73,7 +72,7 @@ class AuthViewModel : ObservableObject{
             print("debug failed create user: \(error.localizedDescription)")
         }
     }
-
+    
     
     func signOut() async throws {
         do{
@@ -111,11 +110,7 @@ class AuthViewModel : ObservableObject{
             self.currentUser = try snapshot.data(as: User.self)
             print("successfully fetched user data: \(String(describing: currentUser))")
         }catch {
-            print("debud failed: \(error.localizedDescription)")
+            print("debud failed fetch data: \(error.localizedDescription)")
         }
-  
-        
     }
-    
-    
 }

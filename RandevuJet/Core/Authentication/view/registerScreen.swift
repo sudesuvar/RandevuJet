@@ -2,6 +2,7 @@ import SwiftUI
 
 struct registerScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeViewModel: ThemeViewModel
     @State private var nameSurname = ""
     @State private var email = ""
     @State private var password = ""
@@ -17,10 +18,17 @@ struct registerScreen: View {
 
             // Başlık
             VStack(spacing: 4) {
-                Image("logo")
-                    .resizable()
-                    .frame(width: 80, height: 80)
-
+                
+                if(themeViewModel.isDarkMode){
+                    Image("darklogo")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                    //
+                }else{
+                    Image("logo")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                }
                 Text("Yeni Üyelik Oluştur")
                     .font(.title)
                     .fontWeight(.semibold)
