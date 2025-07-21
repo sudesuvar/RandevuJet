@@ -1,12 +1,14 @@
 import Foundation
 import SwiftUI
+import Kingfisher
+
 
 struct HorizontalList: View {
     let hairdressers: [HairDresser]
     var onShowAllTapped: () -> Void
     
     @Environment(\.colorScheme) var colorScheme
-
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -14,9 +16,9 @@ struct HorizontalList: View {
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(colorScheme == .dark ? .white : .black)
-
+                
                 Spacer()
-
+                
                 Button(action: {
                     onShowAllTapped()
                 }) {
@@ -26,7 +28,7 @@ struct HorizontalList: View {
                 }
             }
             .padding(.horizontal)
-
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(hairdressers) { hairdresser in
@@ -42,23 +44,24 @@ struct HorizontalList: View {
 struct HairdresserRow: View {
     let hairdresser: HairDresser
     @Environment(\.colorScheme) var colorScheme
-
+    
     var body: some View {
         VStack(spacing: 8) {
-            Image(hairdresser.photo ?? "placeholder_image")
+            KFImage(URL(string: hairdresser.photo ?? ""))
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(width: 120, height: 120)
                 .clipped()
                 .cornerRadius(12)
                 .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
-
+            
+            
             VStack(spacing: 4) {
                 Text(hairdresser.salonName ?? "Bilinmeyen Salon")
                     .font(.headline)
                     .lineLimit(1)
                     .foregroundColor(colorScheme == .dark ? .white : .black)
-
+                
                 Text(hairdresser.text ?? "")
                     .font(.subheadline)
                     .foregroundColor(.secondary)

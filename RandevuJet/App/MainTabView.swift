@@ -11,6 +11,7 @@ import SwiftUI
 struct MainTabView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
+    @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     var body: some View {
         TabView {
             HomeScreen()
@@ -31,6 +32,7 @@ struct MainTabView_Previews: PreviewProvider {
         MainTabView()
             .environmentObject(AuthViewModel())
             .environmentObject(ThemeViewModel())
+            .environmentObject(HairdresserViewModel())
     }
 }
 

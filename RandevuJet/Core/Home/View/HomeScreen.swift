@@ -10,44 +10,9 @@ import Foundation
 import SwiftUI
 
 struct HomeScreen: View {
-    
+    @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     @State private var showAll = false
     
-    let sampleHairdressers = [
-        HairDresser(
-            id: UUID().uuidString,
-            salonName: "Prenses ",
-            email: "ayse@example.com",
-            role: "Kuaför",
-            address: "İstanbul",
-            phone: "05551234567",
-            photo: "logo",
-            employeesNumber: 3,
-            text: "Güzellik Merkezi"
-        ),
-        HairDresser(
-            id: UUID().uuidString,
-            salonName: "Şahane",
-            email: "mehmet@example.com",
-            role: "Kuaför",
-            address: "Ankara",
-            phone: "05559876543",
-            photo: "logo",
-            employeesNumber: 5,
-            text: "Kuaför Dükkanı"
-        ),
-        HairDresser(
-            id: UUID().uuidString,
-            salonName: "Elif Kaya",
-            email: "elif@example.com",
-            role: "Kuaför",
-            address: "İzmir",
-            phone: "05553456789",
-            photo: "logo",
-            employeesNumber: 2,
-            text: "Saç Stüdyosu"
-        )
-    ]
     let myAppointments = [
         Appointment(
             id: UUID().uuidString,
@@ -79,7 +44,7 @@ struct HomeScreen: View {
                     VStack(spacing: 16) {
                         Header()
                         
-                        HorizontalList(hairdressers: sampleHairdressers) {
+                        HorizontalList(hairdressers: hairdresserViewModel.hairdressers) {
                             showAll = true
                         }
                         
@@ -94,9 +59,12 @@ struct HomeScreen: View {
                     }
                 }
                 .background(Color(.systemGroupedBackground))
-                .navigationDestination(isPresented: $showAll) {
-                    //AllHairdressersView(hairdressers: sampleHairdressers)
-                }
+                //.navigationDestination(isPresented: $showAll) {
+                  //  HairdressersScreen()
+                //}
+                NavigationLink(destination: HairdressersScreen(), isActive: $showAll) {
+                                    EmptyView()
+                                }
             }
             .frame(maxHeight: .infinity, alignment: .top)
             .background(Color(.systemGroupedBackground))
@@ -110,5 +78,6 @@ struct HomeScreen: View {
 
 #Preview {
     HomeScreen()
+        .environmentObject(HairdresserViewModel())
 }
 

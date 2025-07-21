@@ -1,22 +1,23 @@
-//
-//  profileScreen.swift
-//  RandevuJet
-//
-//  Created by sude on 16.07.2025.
-//
-
 import Foundation
 import SwiftUI
 
 struct profileScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
+    @Environment(\.colorScheme) var colorScheme
+    @State private var isFeedbackSheetPresented = false
+    @State private var feedbackText = ""
+    @State private var isFeedbackSent = false
+
+
+
+
     var body: some View {
-        
         if let user = authViewModel.currentUser {
-            List {
-                Section() {
-                    HStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    // PROFİL
+                    HStack(spacing: 16) {
                         Text(user.initials)
                             .font(.title)
                             .fontWeight(.bold)
@@ -24,103 +25,98 @@ struct profileScreen: View {
                             .frame(width: 72, height: 72)
                             .background(Color.gray)
                             .clipShape(Circle())
-                        VStack(alignment: .leading, spacing: 4){
+
+                        VStack(alignment: .leading, spacing: 4) {
                             Text(user.nameSurname)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .padding(.top, 2)
+                                .font(.headline)
                             Text(user.email)
-                                .font(.footnote)
-                                .accentColor(.gray)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
                         }
+
+                        Spacer()
                     }
-                }
-                //theme
-                Section() {
+                    .padding()
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .cornerRadius(16)
+                    .padding(.horizontal)
+
+                    // TEMA
                     HStack {
                         Image(systemName: themeViewModel.isDarkMode ? "moon.fill" : "sun.max.fill")
                             .foregroundColor(.gray)
-                        
                         Text("Tema")
                             .font(.subheadline)
-                        
                         Spacer()
-                        
                         Toggle("", isOn: $themeViewModel.isDarkMode)
                             .labelsHidden()
-                        //
                     }
-                }
-                
-                // language
-                Section {
+                    .padding()
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .cornerRadius(16)
+                    .padding(.horizontal)
+
+                    // DİL
                     HStack {
                         Text("🌐")
                             .font(.title2)
-                        
-                        // DEĞİŞECEK
                         Text("Uygulama Dili")
                             .font(.subheadline)
-                        
                         Spacer()
-                        
-                        // Toggle
-                        Toggle(isOn: .constant(false)) {
-                        }
-                        .toggleStyle(SwitchToggleStyle(tint: .black))
+                        Toggle(isOn: .constant(false)) { }
+                            .toggleStyle(SwitchToggleStyle(tint: .black))
                     }
-                    
-                }
-                
-                
-                // Version
-                Section() {
-                    HStack(alignment: .center, spacing: 8) {
+                    .padding()
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .cornerRadius(16)
+                    .padding(.horizontal)
+
+                    // VERSION
+                    HStack {
                         Image(systemName: "info.circle")
                             .foregroundColor(.gray)
-                        
                         Text("Version")
                             .font(.subheadline)
-                        
                         Spacer()
-                        
                         Text("1.0.0")
                             .font(.footnote)
                             .foregroundColor(.gray)
                     }
-                }
-                
-                
-                // logout
-                Section {
-                    HStack(alignment: .center, spacing: 8) {
-                        Button(action: {
-                            Task {
-                                do {
-                                    try await authViewModel.signOut()
-                                } catch {
-                                    print("Debug Failed logout: \(error)")
-                                }
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: "rectangle.portrait.and.arrow.right")
-                                    .foregroundColor(.gray)
-                                Text("Çıkış Yap")
-                                    .foregroundColor(.primary)
+                    .padding()
+                    .background(Color(.secondarySystemGroupedBackground))
+                    .cornerRadius(16)
+                    .padding(.horizontal)
+
+                    // ÇIKIŞ YAP
+                    Button(action: {
+                        Task {
+                            do {
+                                try await authViewModel.signOut()
+                            } catch {
+                                print("Logout error: \(error)")
                             }
                         }
+                    }) {
+                        HStack {
+                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                                .foregroundColor(.gray)
+                            Text("Çıkış Yap")
+                                .foregroundColor(.primary)
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color(.secondarySystemGroupedBackground))
+                        .cornerRadius(16)
+                        .padding(.horizontal)
                     }
-                }
-                
-                // delete user
-                Section {
+
+                    // HESABI SİL
                     Button(action: {
                         Task {
                             do {
                                 try await authViewModel.deleteUser()
                             } catch {
-                                print("Debug Failed delete user: \(error)")
+                                print("Delete error: \(error)")
                             }
                         }
                     }) {
@@ -129,34 +125,93 @@ struct profileScreen: View {
                                 .foregroundColor(.gray)
                             Text("Hesabını Sil")
                                 .foregroundColor(.primary)
+                            Spacer()
                         }
+                        .padding()
+                        .background(Color(.secondarySystemGroupedBackground))
+                        .cornerRadius(16)
+                        .padding(.horizontal)
                     }
+                    
+                    // Geri Bildirim Butonu
+                    Button(action: {
+                        isFeedbackSheetPresented = true
+                    }) {
+                        HStack {
+                            Image(systemName: "bubble.left.and.bubble.right.fill")
+                                .foregroundColor(.gray)
+                            Text("Geri Bildirim")
+                                .font(.subheadline)
+                                .foregroundColor(.primary)
+                            Spacer()
+                        }
+                        .padding()
+                        .background(Color(.secondarySystemGroupedBackground))
+                        .cornerRadius(16)
+                        .padding(.horizontal)
+                    }
+                    .sheet(isPresented: $isFeedbackSheetPresented) {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Geri Bildirim")
+                                .font(.title2)
+                                .bold()
+
+                            TextEditor(text: $feedbackText)
+                                .frame(height: 150)
+                                .padding(8)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
+
+                            Button(action: {
+                                Task{
+                                    try await authViewModel.sendFeedback(feedback: feedbackText)
+                                }
+                                isFeedbackSent = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                    isFeedbackSheetPresented = false
+                                    isFeedbackSent = false
+                                }
+                            }) {
+                                HStack {
+                                    Spacer()
+                                    Text("Gönder")
+                                        .fontWeight(.semibold)
+                                        .padding()
+                                    Spacer()
+                                }
+                                .background(Color.yellow)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                            }
+
+                            if isFeedbackSent {
+                                Text("Teşekkürler! Geri bildiriminiz gönderildi.")
+                                    .foregroundColor(.green)
+                            }
+
+                            Spacer()
+                        }
+                        .padding()
+                    }
+
+                    
+                
+
                 }
+          
             }
-            .listSectionSpacing(16)
-            //.listRowInsets(EdgeInsets(top: 0, leading: 5, bottom: 8, trailing: 8))
-            .frame(maxHeight: .infinity, alignment: .top)
-            .background(Color(.systemGroupedBackground))
-        }
-        else{
+            .background(Color(.systemGroupedBackground).ignoresSafeArea())
+        } else {
             ProgressView()
                 .onAppear {
                     Task {
                         do {
                             try await authViewModel.fetchUserData()
                         } catch {
-                            print("Error fetching user data: \(error)")
+                            print("Kullanıcı verisi alınamadı: \(error)")
                         }
                     }
                 }
         }
-        
-        
     }
-}
-
-#Preview {
-    profileScreen()
-        .environmentObject(AuthViewModel())
-        .environmentObject(ThemeViewModel())
 }

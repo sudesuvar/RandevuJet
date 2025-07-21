@@ -11,13 +11,14 @@ struct HairDresser:Identifiable, Codable {
     var id: String
     var salonName: String
     var email: String
-    var role: String
+    var role: String?
     var address: String?
     var phone: String?
     var photo: String?
     var employeesNumber: Int?
     var text: String?
     var createdAt: Date?
+    var status: String?
     
     var initials: String {
         let formatter = PersonNameComponentsFormatter()

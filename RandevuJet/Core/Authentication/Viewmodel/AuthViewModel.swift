@@ -118,4 +118,15 @@ class AuthViewModel : ObservableObject{
             print("debud failed fetch data: \(error.localizedDescription)")
         }
     }
+    
+    func sendFeedback(feedback: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        do{
+            try await Firestore.firestore().collection("feedback").addDocument(data: ["uid": uid, "feedback": feedback, "createdAt" : Timestamp(date: Date())])
+        }catch{
+            print("debug failed send feedback: \(error.localizedDescription)")
+        }
+    }
+    
+    
 }
