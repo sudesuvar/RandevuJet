@@ -99,6 +99,11 @@ class AuthViewModel : ObservableObject{
     
     // Reset password
     func sendPasswordResetEmail(toEmail email: String) async throws {
+        do {
+            try await Auth.auth().sendPasswordReset(withEmail: email)
+        }catch{
+            print("debug failed send password reset email: \(error.localizedDescription)")
+        }
         
     }
     

@@ -1,16 +1,11 @@
-//
-//  HorizontalList.swift
-//  RandevuJet
-//
-//  Created by sude on 18.07.2025.
-//
-
 import Foundation
 import SwiftUI
 
 struct HorizontalList: View {
     let hairdressers: [HairDresser]
     var onShowAllTapped: () -> Void
+    
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -18,6 +13,7 @@ struct HorizontalList: View {
                 Text("Kuaförler")
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
 
                 Spacer()
 
@@ -26,7 +22,7 @@ struct HorizontalList: View {
                 }) {
                     Text("Hepsini Göster")
                         .font(.subheadline)
-                        .foregroundColor(.blue)
+                        .foregroundColor(colorScheme == .dark ? .cyan : .blue)
                 }
             }
             .padding(.horizontal)
@@ -45,6 +41,7 @@ struct HorizontalList: View {
 
 struct HairdresserRow: View {
     let hairdresser: HairDresser
+    @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         VStack(spacing: 8) {
@@ -54,21 +51,30 @@ struct HairdresserRow: View {
                 .frame(width: 120, height: 120)
                 .clipped()
                 .cornerRadius(12)
-                .shadow(color: .gray.opacity(0.3), radius: 4, x: 0, y: 2)
-            
-            VStack(spacing: 8) {
+                .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+
+            VStack(spacing: 4) {
                 Text(hairdresser.salonName ?? "Bilinmeyen Salon")
                     .font(.headline)
                     .lineLimit(1)
-                
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
+
                 Text(hairdresser.text ?? "")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                     .lineLimit(2)
                     .multilineTextAlignment(.center)
             }
+            .padding(.horizontal, 4)
         }
         .frame(width: 140)
-        .padding(.vertical, 4)
+        .padding()
+        .background(colorScheme == .dark ? Color(.systemGray5) : Color.white)
+        .overlay(
+            RoundedRectangle(cornerRadius: 14)
+                .stroke(colorScheme == .dark ? Color.white.opacity(0.1) : Color.gray.opacity(0.3), lineWidth: 1)
+        )
+        .cornerRadius(14)
+        .shadow(color: colorScheme == .dark ? .black.opacity(0.2) : .gray.opacity(0.1), radius: 4, x: 0, y: 2)
     }
 }

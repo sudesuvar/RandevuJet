@@ -1,10 +1,3 @@
-//
-//  VerticalList.swift
-//  RandevuJet
-//
-//  Created by sude on 18.07.2025.
-//
-
 import Foundation
 import SwiftUI
 
@@ -15,12 +8,15 @@ struct VerticalList: View {
     let detailProvider: (Appointment) -> String
     let imageProvider: (Appointment) -> String?
     
+    @Environment(\.colorScheme) var colorScheme
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Randevularım")
                     .font(.title2)
                     .fontWeight(.semibold)
+                    .foregroundColor(colorScheme == .dark ? .white : .black)
                 
                 Spacer()
                 
@@ -29,7 +25,7 @@ struct VerticalList: View {
                 }) {
                     Text("Hepsini Göster")
                         .font(.subheadline)
-                        .foregroundColor(.blue)
+                        .foregroundColor(colorScheme == .dark ? .cyan : .blue)
                 }
             }
             .padding(.horizontal)
@@ -47,6 +43,7 @@ struct VerticalList: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(titleProvider(appointment))
                                 .font(.headline)
+                                .foregroundColor(colorScheme == .dark ? .white : .black)
                                 .lineLimit(1)
                             
                             Text(subtitleProvider(appointment))
@@ -64,9 +61,13 @@ struct VerticalList: View {
                     }
                     .padding(.vertical, 12)
                     .padding(.horizontal, 16)
-                    .background(Color.white)
+                    .background(colorScheme == .dark ? Color(.systemGray5) : Color.white)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(colorScheme == .dark ? Color.white.opacity(0.1) : Color.gray.opacity(0.2), lineWidth: 1)
+                    )
                     .cornerRadius(12)
-                    .shadow(color: .gray.opacity(0.2), radius: 4, x: 0, y: 2)
+                    .shadow(color: colorScheme == .dark ? .black.opacity(0.2) : .gray.opacity(0.1), radius: 4, x: 0, y: 2)
                 }
             }
             .padding(.horizontal)

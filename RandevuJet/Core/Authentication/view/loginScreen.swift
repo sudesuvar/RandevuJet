@@ -95,7 +95,7 @@ struct loginScreen: View {
             
             // Giriş Butonu
             Button(action: {
-                handleLogin()
+                //handleLogin()
                 Task{
                     try await authViewModel.signIn(withEmail: email, password: password)
                 }
@@ -231,6 +231,7 @@ struct loginScreen: View {
 }
 
 struct ForgotPasswordView: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
     @State private var email = ""
     @State private var showSuccessMessage = false
     @State private var showAlert = false
@@ -301,7 +302,11 @@ struct ForgotPasswordView: View {
                 
                 // Send Button
                 Button(action: {
-                    handleForgotPassword()
+                    Task {
+                        try await authViewModel.sendPasswordResetEmail(toEmail: email)
+                        handleForgotPassword()
+                        //sudesuvar51@gmail.com
+                    }
                 }) {
                     Text("Gönder")
                         .font(.headline)

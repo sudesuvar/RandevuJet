@@ -58,7 +58,7 @@ struct splashScreen: View {
                         VStack(spacing: 12) {
                             // Kayıt Ol NavigationLink
                             NavigationLink(destination: loginScreen(userType: .customer)) {
-                                Text("Müşteri Girişi")
+                                Text("Kullanıcı Girişi")
                                     .font(.system(size: 16, weight: .bold))
                                     .foregroundColor(.black)
                                     .frame(maxWidth: .infinity)
@@ -67,7 +67,7 @@ struct splashScreen: View {
                                     .cornerRadius(999)
                             }
                             
-                            // Giriş Yap NavigationLink
+                            // Giriş Yap NavigationLink 
                             NavigationLink(destination: loginScreen(userType: .hairdresser)) {
                                 Text("Kuaför Girişi")
                                     .font(.system(size: 16, weight: .bold))
