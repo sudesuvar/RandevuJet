@@ -179,8 +179,11 @@ struct loginScreen: View {
                     NavigationLink(destination: {
                         if userType == .customer {
                             registerScreen()
+                                .navigationBarBackButtonHidden(true)
+
                         } else {
                             hairdresserRegisterScreen()
+                                .navigationBarBackButtonHidden(true)
                         }
                     }) {
                         Text("Kayıt Ol")

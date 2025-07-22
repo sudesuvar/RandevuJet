@@ -19,6 +19,7 @@ struct HairDresser:Identifiable, Codable {
     var text: String?
     var createdAt: Date?
     var status: String?
+    var services: [Service]?
     
     var initials: String {
         let formatter = PersonNameComponentsFormatter()

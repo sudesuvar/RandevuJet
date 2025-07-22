@@ -66,6 +66,8 @@ struct splashScreen: View {
                                     .background(Color.yellow)
                                     .cornerRadius(999)
                             }
+                            .navigationBarBackButtonHidden(true)
+
                             
                             // Giriş Yap NavigationLink 
                             NavigationLink(destination: loginScreen(userType: .hairdresser)) {
@@ -77,6 +79,8 @@ struct splashScreen: View {
                                     .background(Color(.systemGray5))
                                     .cornerRadius(999)
                             }
+                            .navigationBarBackButtonHidden(true)
+
                         }
                         .padding(.horizontal)
                         .opacity(animateButtons ? 1 : 0)

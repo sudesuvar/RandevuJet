@@ -12,7 +12,10 @@ struct HairdressersScreen: View {
                 } else {
                     LazyVStack(spacing: 16) {
                         ForEach(hairdresserViewModel.hairdressers) { hairdresser in
-                            HairdresserCard(hairdresser: hairdresser)
+                            NavigationLink(destination: HairdresserDetailsScreen(hairdresser: hairdresser)) {
+                                HairdresserCard(hairdresser: hairdresser)
+                            }
+                            .buttonStyle(PlainButtonStyle()) // underline veya mavi highlight olmasın diye
                         }
                     }
                 }
@@ -54,7 +57,7 @@ struct HairdresserCard: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 
-                Text("Tel: \(hairdresser.phone)")
+                Text(hairdresser.phone ?? "")
                     .font(.footnote)
                     .foregroundColor(.secondary)
             }
@@ -70,4 +73,5 @@ struct HairdresserCard: View {
 
 #Preview {
     HairdressersScreen()
+        .environmentObject(HairdresserViewModel())
 }
