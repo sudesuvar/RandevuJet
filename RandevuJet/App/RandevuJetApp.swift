@@ -20,11 +20,15 @@ struct RandevuJetApp: App {
     
     var body: some Scene {
         WindowGroup {
-            splashScreen()
-                .environmentObject(authViewModel)
-                .environmentObject(themeViewModel)
-                .environmentObject(hairdresserViewModel)
-                .preferredColorScheme(themeViewModel.isDarkMode ? .dark : .light)
+            NavigationStack{
+                splashScreen()
+                    .environmentObject(authViewModel)
+                    .environmentObject(themeViewModel)
+                    .environmentObject(hairdresserViewModel)
+                    .preferredColorScheme(themeViewModel.isDarkMode ? .dark : .light)
+            }
+            
         }
+        
     }
 }

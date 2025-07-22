@@ -10,6 +10,8 @@ import Foundation
 import SwiftUI
 
 struct HomeScreen: View {
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeViewModel: ThemeViewModel
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     @State private var showAll = false
     
@@ -37,47 +39,47 @@ struct HomeScreen: View {
             createdAt: Date()
         )
     ]
+    
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                ScrollView {
-                    VStack(spacing: 16) {
-                        Header()
-                        
-                        HorizontalList(hairdressers: hairdresserViewModel.hairdressers) {
-                            showAll = true
-                        }
-                        
-                        VerticalList(
-                            appointments: myAppointments,
-                            titleProvider: { $0.hairdresserName },
-                            subtitleProvider: { $0.serviceName },
-                            detailProvider: { "\($0.date) • \($0.time)" },
-                            imageProvider: { $0.photo }
-                        )
-                        
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 16) {
+                    Header()
+                    
+                    HorizontalList(hairdressers: hairdresserViewModel.hairdressers) {
+                        showAll = true
                     }
+                    
+                    VerticalList(
+                        appointments: myAppointments,
+                        titleProvider: { $0.hairdresserName },
+                        subtitleProvider: { $0.serviceName },
+                        detailProvider: { "\($0.date) • \($0.time)" },
+                        imageProvider: { $0.photo }
+                    )
                 }
-                .background(Color(.systemGroupedBackground))
-                //.navigationDestination(isPresented: $showAll) {
-                  //  HairdressersScreen()
-                //}
-                NavigationLink(destination: HairdressersScreen(), isActive: $showAll) {
-                                    EmptyView()
-                                }
+                .padding(.top) // opsiyonel
             }
-            .frame(maxHeight: .infinity, alignment: .top)
             .background(Color(.systemGroupedBackground))
+            .navigationDestination(isPresented: $showAll) {
+                HairdressersScreen()
+                    .environmentObject(authViewModel)
+                    .environmentObject(themeViewModel)
+                    .environmentObject(hairdresserViewModel)
+            }
+            .navigationBarHidden(true)
         }
-        .frame(maxHeight: .infinity, alignment: .top)
-        .background(Color(.systemGroupedBackground))
     }
+    
 }
+
 
 
 
 #Preview {
     HomeScreen()
         .environmentObject(HairdresserViewModel())
+        .environmentObject(ThemeViewModel())
+        .environmentObject(AuthViewModel())
 }
 

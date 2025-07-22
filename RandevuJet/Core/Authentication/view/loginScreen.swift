@@ -17,6 +17,7 @@ enum UserType {
 struct loginScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
+    @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     var userType: UserType
     @State private var email = ""
     @State private var password = ""
@@ -24,13 +25,11 @@ struct loginScreen: View {
     @State private var isSecureField = true
     @State private var showAlert = false
     @State private var alertMessage = ""
-    
-    
+    @State private var isLoggedIn = false 
     
     var body: some View {
         VStack(spacing: 30) {
             Spacer()
-            
             // Başlık
             VStack(spacing: 4) {
                 if(themeViewModel.isDarkMode){
@@ -98,6 +97,14 @@ struct loginScreen: View {
                 //handleLogin()
                 Task{
                     try await authViewModel.signIn(withEmail: email, password: password)
+                    NavigationLink(destination:HomeScreen()
+                        .environmentObject(authViewModel)
+                        .environmentObject(themeViewModel)
+                        .environmentObject(hairdresserViewModel),
+                                   isActive: $isLoggedIn) {
+                        EmptyView()
+                    }
+                                   .hidden()
                 }
                 
             }) {
@@ -179,10 +186,16 @@ struct loginScreen: View {
                     NavigationLink(destination: {
                         if userType == .customer {
                             registerScreen()
+                                .environmentObject(authViewModel)
+                                .environmentObject(themeViewModel)
+                                .environmentObject(hairdresserViewModel)
                                 .navigationBarBackButtonHidden(true)
-
+                            
                         } else {
                             hairdresserRegisterScreen()
+                                .environmentObject(authViewModel)
+                                .environmentObject(themeViewModel)
+                                .environmentObject(hairdresserViewModel)
                                 .navigationBarBackButtonHidden(true)
                         }
                     }) {

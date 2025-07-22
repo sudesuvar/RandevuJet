@@ -11,6 +11,7 @@ import SwiftUI
 struct hairdresserRegisterScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
+    @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     @State private var salonName = ""
     @State private var email = ""
     @State private var password = ""
@@ -18,177 +19,181 @@ struct hairdresserRegisterScreen: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var showLoginScreen = false
-
+    
     var body: some View {
-        NavigationView {
-            VStack(spacing: 30) {
-                Spacer()
-
-                // Başlık
-                VStack(spacing: 4) {
-                    
-                    if(themeViewModel.isDarkMode){
-                        Image("darklogo")
-                            .font(.system(size: 60))
-                            .foregroundColor(.gray)
-                        //
-                    }else{
-                        Image("logo")
-                            .font(.system(size: 60))
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Text("Yeni Üyelik Oluştur")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.black)
+        VStack(spacing: 30) {
+            Spacer()
+            
+            // Başlık
+            VStack(spacing: 4) {
+                
+                if(themeViewModel.isDarkMode){
+                    Image("darklogo")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                    //
+                }else{
+                    Image("logo")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
                 }
-
-                // Kayıt Formu
-                VStack(spacing: 16) {
-                    TextField("İşletme Adı", text: $salonName)
-                        .textFieldStyle(.plain)
-                        .keyboardType(.default)
-                        .autocapitalization(.words)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-                    
-                    // E-posta
-                    TextField("E-posta", text: $email)
-                        .textFieldStyle(.plain)
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(10)
-
-                    // Şifre
-                    HStack {
-                        ZStack {
-                            TextField("Şifre", text: $password)
-                                .opacity(isSecureField ? 0 : 1)
-                            SecureField("Şifre", text: $password)
-                                .opacity(isSecureField ? 1 : 0)
-                        }
-                        .textFieldStyle(.plain)
-
-                        Button(action: {
-                            isSecureField.toggle()
-                        }) {
-                            Image(systemName: isSecureField ? "eye.slash" : "eye")
-                                .foregroundColor(.gray)
-                        }
-                    }
+                
+                Text("Yeni Üyelik Oluştur")
+                    .font(.title)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.black)
+            }
+            
+            // Kayıt Formu
+            VStack(spacing: 16) {
+                TextField("İşletme Adı", text: $salonName)
+                    .textFieldStyle(.plain)
+                    .keyboardType(.default)
+                    .autocapitalization(.words)
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
-                }
-                .padding(.horizontal, 32)
-
-                // Kayıt Butonu
-                Button(action: {
-                    handleRegister()
-                    Task{
-                        try await authViewModel.createHairDresser(withEmail: email, password: password, salonName: salonName, role: "hairdresser")
-                    }
-                }) {
-                    Text("Kayıt Ol")
-                        .font(.headline)
-                        .foregroundColor(.black)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 48)
-                        .background(Color.yellow)
-                        .cornerRadius(10)
-                }
-                .padding(.horizontal, 32)
-                .disabled(salonName.isEmpty || email.isEmpty || password.isEmpty)
-                .opacity(salonName.isEmpty || email.isEmpty || password.isEmpty ? 0.6 : 1.0)
                 
-                // Social Login Options
-                VStack(spacing: 15) {
-                    HStack {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.5))
-                            .frame(height: 1)
-                        
-                        Text("veya")
-                            .foregroundColor(.black)
-                            .font(.system(size: 14))
-                        
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.5))
-                            .frame(height: 1)
-                    }
-                    .padding(.horizontal, 32)
-                    
-                    HStack(spacing: 20) {
-                        // Google Login
-                        Button(action: {
-                            // Google login implementation
-                        }) {
-                            Image(systemName: "globe")
-                                .font(.system(size: 20))
-                                .foregroundColor(.white)
-                                .frame(width: 50, height: 50)
-                                .background(Color.red.opacity(0.8))
-                                .cornerRadius(25)
-                        }
-                        
-                        // Apple Login
-                        Button(action: {
-                            // Apple login implementation
-                        }) {
-                            Image(systemName: "apple.logo")
-                                .font(.system(size: 20))
-                                .foregroundColor(.white)
-                                .frame(width: 50, height: 50)
-                                .background(Color.black.opacity(0.8))
-                                .cornerRadius(25)
-                        }
-                        
-                        // Facebook Login
-                        Button(action: {
-                            // Facebook login implementation
-                        }) {
-                            Image(systemName: "f.circle.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(.white)
-                                .frame(width: 50, height: 50)
-                                .background(Color.blue.opacity(0.8))
-                                .cornerRadius(25)
-                        }
-                    }
-                }
-
-                Spacer()
-
-                // Login Sayfasına Git
+                // E-posta
+                TextField("E-posta", text: $email)
+                    .textFieldStyle(.plain)
+                    .keyboardType(.emailAddress)
+                    .autocapitalization(.none)
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(10)
+                
+                // Şifre
                 HStack {
-                    Text("Zaten bir hesabın var mı?")
-                        .foregroundColor(.black)
-                    
-                    Button("Giriş Yap") {
-                        showLoginScreen = true
+                    ZStack {
+                        TextField("Şifre", text: $password)
+                            .opacity(isSecureField ? 0 : 1)
+                        SecureField("Şifre", text: $password)
+                            .opacity(isSecureField ? 1 : 0)
                     }
-                    .fontWeight(.bold)
-                    .foregroundColor(.yellow)
+                    .textFieldStyle(.plain)
+                    
+                    Button(action: {
+                        isSecureField.toggle()
+                    }) {
+                        Image(systemName: isSecureField ? "eye.slash" : "eye")
+                            .foregroundColor(.gray)
+                    }
                 }
-                .padding(.bottom, 16)
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
             }
-            .padding(.top)
-            .background(Color.white)
-            .ignoresSafeArea()
+            .padding(.horizontal, 32)
+            
+            // Kayıt Butonu
+            Button(action: {
+                handleRegister()
+                Task{
+                    try await authViewModel.createHairDresser(withEmail: email, password: password, salonName: salonName, role: "hairdresser")
+                }
+            }) {
+                Text("Kayıt Ol")
+                    .font(.headline)
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 48)
+                    .background(Color.yellow)
+                    .cornerRadius(10)
+            }
+            .padding(.horizontal, 32)
+            .disabled(salonName.isEmpty || email.isEmpty || password.isEmpty)
+            .opacity(salonName.isEmpty || email.isEmpty || password.isEmpty ? 0.6 : 1.0)
+            
+            // Social Login Options
+            VStack(spacing: 15) {
+                HStack {
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.5))
+                        .frame(height: 1)
+                    
+                    Text("veya")
+                        .foregroundColor(.black)
+                        .font(.system(size: 14))
+                    
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.5))
+                        .frame(height: 1)
+                }
+                .padding(.horizontal, 32)
+                
+                HStack(spacing: 20) {
+                    // Google Login
+                    Button(action: {
+                        // Google login implementation
+                    }) {
+                        Image(systemName: "globe")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color.red.opacity(0.8))
+                            .cornerRadius(25)
+                    }
+                    
+                    // Apple Login
+                    Button(action: {
+                        // Apple login implementation
+                    }) {
+                        Image(systemName: "apple.logo")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color.black.opacity(0.8))
+                            .cornerRadius(25)
+                    }
+                    
+                    // Facebook Login
+                    Button(action: {
+                        // Facebook login implementation
+                    }) {
+                        Image(systemName: "f.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color.blue.opacity(0.8))
+                            .cornerRadius(25)
+                    }
+                }
+            }
+            
+            Spacer()
+            
+            // Login Sayfasına Git
+            HStack {
+                Text("Zaten bir hesabın var mı?")
+                    .foregroundColor(.black)
+                
+                Button("Giriş Yap") {
+                    showLoginScreen = true
+                }
+                .fontWeight(.bold)
+                .foregroundColor(.yellow)
+            }
+            .padding(.bottom, 16)
         }
         .fullScreenCover(isPresented: $showLoginScreen) {
             loginScreen(userType: .hairdresser)
+                .environmentObject(authViewModel)
+                .environmentObject(themeViewModel)
+                .environmentObject(hairdresserViewModel)
+                .padding(.top)
+                .background(Color.white)
+                .ignoresSafeArea()
         }
         .alert("Uyarı", isPresented: $showAlert) {
             Button("Tamam", role: .cancel) { }
         } message: {
             Text(alertMessage)
+            
         }
+        
     }
+    
     
     private func handleRegister() {
         // Ad Soyad kontrolü

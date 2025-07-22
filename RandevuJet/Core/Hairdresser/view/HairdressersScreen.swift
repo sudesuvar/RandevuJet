@@ -5,7 +5,7 @@ struct HairdressersScreen: View {
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     
     var body: some View {
-        NavigationView {
+        NavigationView{
             ScrollView {
                 if hairdresserViewModel.hairdressers.isEmpty {
                     EmptyList.hairdressers()
@@ -20,10 +20,13 @@ struct HairdressersScreen: View {
                     }
                 }
             }
+            .navigationTitle("")
+            .navigationBarTitleDisplayMode(.inline)
+            .task {
+                await hairdresserViewModel.fetchHairdressers()
+            }
         }
-        .task {
-            await hairdresserViewModel.fetchHairdressers()
-        }
+        
     }
 }
 

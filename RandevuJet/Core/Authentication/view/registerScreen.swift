@@ -3,6 +3,7 @@ import SwiftUI
 struct registerScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
+    @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     @State private var nameSurname = ""
     @State private var email = ""
     @State private var password = ""
@@ -11,11 +12,11 @@ struct registerScreen: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var showLoginScreen = false
-
+    
     var body: some View {
         VStack(spacing: 30) {
             Spacer()
-
+            
             // Başlık
             VStack(spacing: 4) {
                 
@@ -34,7 +35,7 @@ struct registerScreen: View {
                     .fontWeight(.semibold)
                     .foregroundColor(.black)
             }
-
+            
             // Kayıt Formu
             VStack(spacing: 16) {
                 TextField("Ad Soyad", text: $nameSurname)
@@ -44,7 +45,7 @@ struct registerScreen: View {
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
-
+                
                 TextField("E-posta", text: $email)
                     .textFieldStyle(.plain)
                     .keyboardType(.emailAddress)
@@ -52,7 +53,7 @@ struct registerScreen: View {
                     .padding()
                     .background(Color(.systemGray6))
                     .cornerRadius(10)
-
+                
                 HStack {
                     ZStack {
                         TextField("Şifre", text: $password)
@@ -61,7 +62,7 @@ struct registerScreen: View {
                             .opacity(isSecureField ? 1 : 0)
                     }
                     .textFieldStyle(.plain)
-
+                    
                     Button(action: {
                         isSecureField.toggle()
                     }) {
@@ -74,7 +75,7 @@ struct registerScreen: View {
                 .cornerRadius(10)
             }
             .padding(.horizontal, 32)
-
+            
             // Kayıt Ol Butonu
             Button(action: {
                 handleRegister()
@@ -93,7 +94,7 @@ struct registerScreen: View {
             .padding(.horizontal, 32)
             .disabled(nameSurname.isEmpty || email.isEmpty || password.isEmpty)
             .opacity(nameSurname.isEmpty || email.isEmpty || password.isEmpty ? 0.6 : 1)
-
+            
             // Sosyal Giriş
             VStack(spacing: 15) {
                 HStack {
@@ -102,7 +103,7 @@ struct registerScreen: View {
                     Rectangle().fill(Color.gray.opacity(0.5)).frame(height: 1)
                 }
                 .padding(.horizontal, 32)
-
+                
                 HStack(spacing: 20) {
                     ForEach(["globe", "apple.logo", "f.circle.fill"], id: \.self) { icon in
                         Button(action: {}) {
@@ -115,14 +116,14 @@ struct registerScreen: View {
                     }
                 }
             }
-
+            
             Spacer()
-
+            
             // Giriş ekranına geçiş
             HStack {
                 Text("Zaten bir hesabın var mı?")
                     .foregroundColor(.black)
-
+                
                 Button("Giriş Yap") {
                     showLoginScreen = true
                 }
@@ -136,53 +137,57 @@ struct registerScreen: View {
         .ignoresSafeArea()
         .fullScreenCover(isPresented: $showLoginScreen) {
             loginScreen(userType: .customer)
+                .environmentObject(authViewModel)
+                .environmentObject(themeViewModel)
+                .environmentObject(hairdresserViewModel)
         }
+        
         .alert("Uyarı", isPresented: $showAlert) {
             Button("Tamam", role: .cancel) { }
         } message: {
             Text(alertMessage)
         }
     }
-
+    
     private func handleRegister() {
         if nameSurname.isEmpty {
             alertMessage = "Lütfen ad ve soyadınızı girin"
             showAlert = true
             return
         }
-
+        
         if email.isEmpty {
             alertMessage = "Lütfen e-posta adresinizi girin"
             showAlert = true
             return
         }
-
+        
         if !isValidEmail(email) {
             alertMessage = "Geçerli bir e-posta adresi girin"
             showAlert = true
             return
         }
-
+        
         if password.isEmpty {
             alertMessage = "Lütfen şifrenizi girin"
             showAlert = true
             return
         }
-
+        
         if password.count < 6 {
             alertMessage = "Şifre en az 6 karakter olmalıdır"
             showAlert = true
             return
         }
-
+        
         alertMessage = "Kayıt başarılı! Giriş yapabilirsiniz."
         showAlert = true
-
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             showLoginScreen = true
         }
     }
-
+    
     private func isValidEmail(_ email: String) -> Bool {
         let regex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         return NSPredicate(format: "SELF MATCHES %@", regex).evaluate(with: email)
