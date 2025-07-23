@@ -58,13 +58,16 @@ struct HairdresserDetailsScreen: View {
                                     .foregroundColor(.secondary)
                                     .font(.caption)
                             }
-                            
-                            HStack {
-                                Image(systemName: "location.fill")
-                                    .foregroundColor(.blue)
-                                Text(hairdresser.address ?? "Adres Bilgisi Yok")
-                                    .font(.subheadline)
+                            NavigationLink(destination: MapView(address: hairdresser.address ?? "TeknoPark, Kocaeli")) {
+                                HStack {
+                                    Image(systemName: "location.fill")
+                                        .foregroundColor(.blue)
+                                    Text(hairdresser.address ?? "Adres Bilgisi Yok")
+                                        .font(.subheadline)
+                                }
+                                
                             }
+                            
                             
                             HStack {
                                 Image(systemName: "clock.fill")
