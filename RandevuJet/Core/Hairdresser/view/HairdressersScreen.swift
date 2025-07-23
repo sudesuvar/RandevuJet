@@ -19,134 +19,133 @@ struct HairdressersScreen: View {
     }
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // Search Bar Section
-                VStack(spacing: 12) {
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                            .foregroundColor(.gray)
-                            .font(.system(size: 18))
-                        
-                        TextField("Salon ara...", text: $searchText)
-                            .textFieldStyle(PlainTextFieldStyle())
-                            .onTapGesture {
-                                isSearchActive = true
-                            }
-                        
-                        if !searchText.isEmpty {
-                            Button(action: {
-                                searchText = ""
-                                isSearchActive = false
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.gray)
-                                    .font(.system(size: 16))
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color(.systemGray6))
-                    )
+        VStack(spacing: 0) {
+            // Search Bar Section
+            VStack(spacing: 12) {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                        .font(.system(size: 18))
                     
-                    if isSearchActive || !searchText.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
-                                FilterChip(title: "Yakınımdaki", isSelected: false) {
-                                    // Filter by location logic
-                                }
-                                FilterChip(title: "Yüksek Puanlı", isSelected: false) {
-                                    // Filter by rating logic
-                                }
-                            }
-                            .padding(.horizontal, 20)
+                    TextField("Salon ara...", text: $searchText)
+                        .textFieldStyle(PlainTextFieldStyle())
+                        .onTapGesture {
+                            isSearchActive = true
+                        }
+                    
+                    if !searchText.isEmpty {
+                        Button(action: {
+                            searchText = ""
+                            isSearchActive = false
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.gray)
+                                .font(.system(size: 16))
                         }
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 12)
-                .padding(.top, 8)
-                .background(Color(.systemBackground))
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color(.systemGray6))
+                )
                 
-                // Divider
-                Divider()
-                    .opacity(isSearchActive || !searchText.isEmpty ? 1 : 0.3)
-                
-                // Results Section
-                ScrollView {
-                    if filteredHairdressers.isEmpty && !searchText.isEmpty {
-                        // No Results View
-                        VStack(spacing: 16) {
-                            Image(systemName: "magnifyingglass")
-                                .font(.system(size: 60))
-                                .foregroundColor(.gray.opacity(0.5))
-                                .padding(.top, 60)
-                            
-                            Text("Sonuç Bulunamadı")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.primary)
-                            
-                            Text("'\(searchText)' için arama sonucu bulunamadı.\nFarklı anahtar kelimeler deneyin.")
-                                .font(.body)
-                                .foregroundColor(.secondary)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, 40)
-                            
-                            Button("Aramayı Temizle") {
-                                searchText = ""
-                                isSearchActive = false
+                /*if isSearchActive || !searchText.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            FilterChip(title: "Yakınımdaki", isSelected: false) {
+                                // Filter by location logic
                             }
-                            .foregroundColor(.blue)
-                            .padding(.top, 8)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 40)
-                        
-                    } else if filteredHairdressers.isEmpty && searchText.isEmpty {
-                        EmptyList.hairdressers()
-                    } else {
-                        LazyVStack(spacing: 16) {
-                            // Search Results Header
-                            if !searchText.isEmpty {
-                                HStack {
-                                    Text("\(filteredHairdressers.count) salon bulundu")
-                                        .font(.subheadline)
-                                        .foregroundColor(.secondary)
-                                    Spacer()
-                                }
-                                .padding(.horizontal, 20)
-                                .padding(.top, 16)
-                            }
-                            
-                            ForEach(filteredHairdressers) { hairdresser in
-                                NavigationLink(destination: HairdresserDetailsScreen(hairdresser: hairdresser)) {
-                                    HairdresserCard(hairdresser: hairdresser, searchText: searchText)
-                                }
-                                .buttonStyle(PlainButtonStyle())
+                            FilterChip(title: "Yüksek Puanlı", isSelected: false) {
+                                // Filter by rating logic
                             }
                         }
                         .padding(.horizontal, 20)
-                        .padding(.bottom, 20)
                     }
+                }*/
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 12)
+            .padding(.top, 8)
+            .background(Color(.systemBackground))
+            
+            // Divider
+            Divider()
+                .opacity(isSearchActive || !searchText.isEmpty ? 1 : 0.3)
+            
+            // Results Section
+            ScrollView {
+                if filteredHairdressers.isEmpty && !searchText.isEmpty {
+                    // No Results View
+                    VStack(spacing: 16) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 60))
+                            .foregroundColor(.gray.opacity(0.5))
+                            .padding(.top, 60)
+                        
+                        Text("Sonuç Bulunamadı")
+                            .font(.title2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+                        
+                        Text("'\(searchText)' için arama sonucu bulunamadı.\nFarklı anahtar kelimeler deneyin.")
+                            .font(.body)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 40)
+                        
+                        Button("Aramayı Temizle") {
+                            searchText = ""
+                            isSearchActive = false
+                        }
+                        .foregroundColor(.blue)
+                        .padding(.top, 8)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 40)
+                    
+                } else if filteredHairdressers.isEmpty && searchText.isEmpty {
+                    EmptyList.hairdressers()
+                } else {
+                    LazyVStack(spacing: 16) {
+                        // Search Results Header
+                        if !searchText.isEmpty {
+                            HStack {
+                                Text("\(filteredHairdressers.count) salon bulundu")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                Spacer()
+                            }
+                            .padding(.horizontal, 20)
+                            .padding(.top, 16)
+                        }
+                        
+                        ForEach(filteredHairdressers) { hairdresser in
+                            NavigationLink(destination: HairdresserDetailsScreen(hairdresser: hairdresser)) {
+                                HairdresserCard(hairdresser: hairdresser, searchText: searchText)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
                 }
             }
-            .navigationTitle("")
-            .navigationBarTitleDisplayMode(.inline)
-            .onTapGesture {
-                // Dismiss keyboard when tapping outside
-                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                isSearchActive = false
-            }
-            .task {
-                await hairdresserViewModel.fetchHairdressers()
-            }
+        }
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+        .onTapGesture {
+            // Dismiss keyboard when tapping outside
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            isSearchActive = false
+        }
+        .task {
+            await hairdresserViewModel.fetchHairdressers()
         }
     }
 }
+
 
 struct HairdresserCard: View {
     let hairdresser: HairDresser

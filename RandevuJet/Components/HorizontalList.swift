@@ -73,12 +73,6 @@ struct HairdresserRow: View {
                     .font(.headline)
                     .lineLimit(1)
                     .foregroundColor(colorScheme == .dark ? .white : .black)
-                
-                Text(hairdresser.text ?? "")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
             }
             .padding(.horizontal, 4)
         }

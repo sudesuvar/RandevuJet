@@ -14,7 +14,7 @@ import CoreLocation
 struct MapView: View {
     var address: String // Dışarıdan gelen adres
     @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 39.9208, longitude: 32.8541), // Varsayılan koordinat (örnek: Ankara)
+        center: CLLocationCoordinate2D(latitude: 39.9208, longitude: 32.8541),
         span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
     )
     @State private var marker: Landmark? = nil
