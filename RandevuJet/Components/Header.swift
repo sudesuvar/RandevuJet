@@ -2,14 +2,24 @@ import Foundation
 import SwiftUI
 
 struct Header: View {
+    @EnvironmentObject var themeViewModel: ThemeViewModel
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
         HStack(spacing: 16) {
-            Image("logo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 96, height: 90)
+            
+            
+            if(themeViewModel.isDarkMode){
+                Image("darklogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 96, height: 90)
+            }else{
+                Image("logo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 96, height: 90)
+            }
 
             Text("Tekrar Hoşgeldin!")
                 .font(.subheadline)

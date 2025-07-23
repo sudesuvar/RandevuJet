@@ -6,16 +6,17 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
-struct Appointment: Identifiable {
-    let id: String
+struct Appointment: Identifiable, Codable {
+    @DocumentID var id: String?
     let customerName: String
-    let hairdresserName: String
+    let customerTel: String
+    let salonName: String
     let serviceName: String
-    let date: String
-    let time: String
-    let photo: String?
-    let status: String?
+    let appointmentDate: String   
+    let appointmentTime: String
+    let status: String
     let createdAt: Date?
     
 }

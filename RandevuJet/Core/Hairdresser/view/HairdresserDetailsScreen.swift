@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Kingfisher
 
 struct HairdresserDetailsScreen: View {
     @Environment(\.colorScheme) var colorScheme
@@ -21,19 +22,27 @@ struct HairdresserDetailsScreen: View {
                 VStack(spacing: 16) {
                     // Görsel ve Bilgiler Yanyana
                     HStack(alignment: .top, spacing: 16) {
-                        Image(systemName: "person.crop.rectangle.fill")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 120, height: 120)
-                            .background(
-                                LinearGradient(
-                                    colors: [.purple.opacity(0.3), .pink.opacity(0.3)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                        if let urlString = hairdresser.photo,
+                           let url = URL(string: urlString) {
+                            KFImage(url)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 120, height: 120)
+                                .background(
+                                    LinearGradient(
+                                        colors: [.purple.opacity(0.3), .pink.opacity(0.3)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
                                 )
-                            )
-                            .cornerRadius(12)
-                            .clipped()
+                                .cornerRadius(12)
+                                .clipped()
+                            
+                        }else {
+                            Color.gray.opacity(0.3)
+                                .frame(width: 100, height: 100)
+                                .cornerRadius(10)
+                        }
                         
                         VStack(alignment: .leading, spacing: 8) {
                             Text(hairdresser.salonName)
@@ -80,17 +89,19 @@ struct HairdresserDetailsScreen: View {
                         Button(action: { selectedTab = 0 }) {
                             Text("Hizmetler")
                                 .fontWeight(.medium)
+                                .foregroundColor(Color.yellow)
                                 .padding()
                                 .frame(maxWidth: .infinity)
-                                .background(selectedTab == 0 ? Color.blue.opacity(0.2) : Color.clear)
+                                .background(selectedTab == 0 ? Color.yellow.opacity(0.2) : Color.clear)
                                 .cornerRadius(10)
                         }
                         Button(action: { selectedTab = 1 }) {
                             Text("Yorumlar")
+                                .foregroundColor(Color.yellow)
                                 .fontWeight(.medium)
                                 .padding()
                                 .frame(maxWidth: .infinity)
-                                .background(selectedTab == 1 ? Color.blue.opacity(0.2) : Color.clear)
+                                .background(selectedTab == 1 ? Color.yellow.opacity(0.2) : Color.clear)
                                 .cornerRadius(10)
                         }
                     }
@@ -98,7 +109,11 @@ struct HairdresserDetailsScreen: View {
                     
                     // Sekme İçeriği
                     if selectedTab == 0 {
-                        ServicesTabView(selectedService: $selectedService)
+                        ServicesTabView(
+                            selectedServiceId: $selectedService,
+                            services: hairdresser.services ?? []
+                        )
+
                     } else {
                         ReviewsTabView()
                     }
@@ -125,11 +140,13 @@ struct HairdresserDetailsScreen: View {
             .padding(.bottom)
         }
         .sheet(isPresented: $showBookingSheet) {
-            Text("Randevu alma ekranı burada olacak.")
+            if let selectedId = selectedService,
+               let service = hairdresser.services?.first(where: { $0.id == selectedId }) {
+                BookingSheet(hairdresser: hairdresser, selectedService: service)
+                    .environmentObject(HairdresserViewModel())
+                  
+            }
         }
-        /*.navigationBarBackButtonHidden(true)
-        .navigationTitle("") // Boş başlık
-        .navigationBarTitleDisplayMode(.inline)*/
     }
 }
 
@@ -149,57 +166,27 @@ struct ReviewsTabView: View {
 }
 
 struct ServicesTabView: View {
-    @Binding var selectedService: String?
-    
+    @Binding var selectedServiceId: String?
+    let services: [Service]  // Dinamik servis listesi
+
     var body: some View {
         LazyVStack(spacing: 12) {
-            ServiceCard(
-                title: "Saç Kesimi",
-                description: "Profesyonel saç kesim hizmeti",
-                price: "₺150",
-                duration: "45 dk",
-                isSelected: selectedService == "kesim"
-            ) {
-                selectedService = "kesim"
-            }
-            
-            ServiceCard(
-                title: "Saç Boyama",
-                description: "Renk değişimi ve boyama",
-                price: "₺300",
-                duration: "120 dk",
-                isSelected: selectedService == "boyama"
-            ) {
-                selectedService = "boyama"
-            }
-            
-            ServiceCard(
-                title: "Keratin Bakım",
-                description: "Saç bakımı ve onarım",
-                price: "₺500",
-                duration: "180 dk",
-                isSelected: selectedService == "keratin"
-            ) {
-                selectedService = "keratin"
-            }
-            
-            ServiceCard(
-                title: "Fön & Şekillendirme",
-                description: "Profesyonel şekillendirme",
-                price: "₺80",
-                duration: "30 dk",
-                isSelected: selectedService == "fon"
-            ) {
-                selectedService = "fon"
+            ForEach(services) { service in
+                ServiceCard(
+                    title: service.serviceTitle,
+                    description: service.serviceDesc,
+                    price: service.servicePrice ?? "Fiyat yok",
+                    duration: service.serviceDuration ?? "Süre yok",
+                    isSelected: selectedServiceId == service.id
+                ) {
+                    selectedServiceId = service.id
+                }
             }
         }
         .padding(.horizontal)
         .transition(.slide)
     }
 }
-
-
-
 
 #Preview {
     //HairdresserDetailsScreen(hairdresser: )

@@ -42,16 +42,16 @@ struct ServiceCard: View {
                 Spacer()
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.blue)
+                        .foregroundColor(.green)
                         .font(.title2)
                 }
             }
             .padding()
-            .background(isSelected ? Color.blue.opacity(0.1) : Color(.systemGray6))
+            .background(isSelected ? Color.yellow.opacity(0.1) : Color(.systemGray6))
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                    .stroke(isSelected ? Color.yellow : Color.clear, lineWidth: 2)
             )
         }
     }

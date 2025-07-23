@@ -8,6 +8,9 @@ struct HorizontalList: View {
     var onShowAllTapped: () -> Void
     
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var authViewModel: AuthViewModel
+    @EnvironmentObject var themeViewModel: ThemeViewModel
+    @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -32,7 +35,16 @@ struct HorizontalList: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
                     ForEach(hairdressers) { hairdresser in
-                        HairdresserRow(hairdresser: hairdresser)
+                        NavigationLink(destination:
+                                        HairdresserDetailsScreen(hairdresser: hairdresser)
+                            .environmentObject(authViewModel)
+                            .environmentObject(themeViewModel)
+                            .environmentObject(hairdresserViewModel)
+                        ) {
+                            HairdresserRow(hairdresser: hairdresser)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
                     }
                 }
                 .padding(.horizontal)

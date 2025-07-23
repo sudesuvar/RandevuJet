@@ -6,7 +6,6 @@
 //
 
 import Foundation
-
 import SwiftUI
 
 struct HomeScreen: View {
@@ -14,64 +13,51 @@ struct HomeScreen: View {
     @EnvironmentObject var themeViewModel: ThemeViewModel
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     @State private var showAll = false
-    
-    let myAppointments = [
-        Appointment(
-            id: UUID().uuidString,
-            customerName: "Ali Veli",
-            hairdresserName: "Prenses Güzellik Merkezi",
-            serviceName: "Saç Kesimi",
-            date: "20 Temmuz 2025",
-            time: "14:00",
-            photo: "logo",
-            status: "active",
-            createdAt: Date()
-        ),
-        Appointment(
-            id: UUID().uuidString,
-            customerName: "Fatma Kaya",
-            hairdresserName: "Elif Kaya Saç Stüdyosu",
-            serviceName: "Saç Boyama",
-            date: "22 Temmuz 2025",
-            time: "10:30",
-            photo: "logo",
-            status: "active",
-            createdAt: Date()
-        )
-    ]
+    @State private var showAllAppointments = false
+    @State private var isLoading = false
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 16) {
-                    Header()
-                    
+        ScrollView {
+            VStack(spacing: 16) {
+                Header()
+                
+                if isLoading {
+                    ProgressView()
+                } else {
                     HorizontalList(hairdressers: hairdresserViewModel.hairdressers) {
                         showAll = true
                     }
-                    
-                    VerticalList(
-                        appointments: myAppointments,
-                        titleProvider: { $0.hairdresserName },
-                        subtitleProvider: { $0.serviceName },
-                        detailProvider: { "\($0.date) • \($0.time)" },
-                        imageProvider: { $0.photo }
-                    )
+                    VerticalList(appointments: hairdresserViewModel.appointments){
+                        showAllAppointments = true
+                    }
                 }
-                .padding(.top) // opsiyonel
             }
-            .background(Color(.systemGroupedBackground))
-            .navigationDestination(isPresented: $showAll) {
-                HairdressersScreen()
-                    .environmentObject(authViewModel)
-                    .environmentObject(themeViewModel)
-                    .environmentObject(hairdresserViewModel)
+            .task {
+                isLoading = true
+                await hairdresserViewModel.fetchHairdressers()
+                await hairdresserViewModel.fetchAppointments()
+                isLoading = false
             }
-            .navigationBarHidden(true)
+            .padding(.top)
         }
+        .background(Color(.systemGroupedBackground))
+        .navigationDestination(isPresented: $showAll) {
+            HairdressersScreen()
+                .environmentObject(authViewModel)
+                .environmentObject(themeViewModel)
+                .environmentObject(hairdresserViewModel)
+        }
+        .navigationDestination(isPresented: $showAllAppointments) {
+            AppoinmentsScreen()
+                .environmentObject(authViewModel)
+                .environmentObject(themeViewModel)
+                .environmentObject(hairdresserViewModel)
+        }
+        .navigationBarHidden(true)
     }
-    
 }
+
+
 
 
 

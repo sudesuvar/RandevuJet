@@ -210,6 +210,7 @@ struct loginScreen: View {
             .padding(.top)
             .background(Color(.systemBackground))
             .ignoresSafeArea()
+            .navigationBarBackButtonHidden(true)
         }
         .sheet(isPresented: $showForgotPassword) {
             ForgotPasswordView()
