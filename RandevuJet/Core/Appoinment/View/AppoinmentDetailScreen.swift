@@ -12,6 +12,7 @@ import Kingfisher
 struct AppoinmentDetailScreen: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var AppoinmentViewModel: AppoinmentViewModel
     let appoinment: Appointment
     
     @State private var showCancelAlert = false
@@ -136,33 +137,6 @@ struct AppoinmentDetailScreen: View {
                             
                             Spacer()
                         }
-                        
-                        if let createdAt = appoinment.createdAt {
-                            Divider()
-                            
-                            // Created Date Section
-                            HStack {
-                                Image(systemName: "clock.badge.checkmark")
-                                    .foregroundColor(.gray)
-                                    .frame(width: 24)
-                                
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Oluşturulma Tarihi")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                    
-                                    Text(createdAt, style: .date)
-                                        .font(.subheadline)
-                                        .fontWeight(.medium)
-                                    
-                                    Text(createdAt, style: .time)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-                                
-                                Spacer()
-                            }
-                        }
                     }
                     .padding(20)
                     .background(
@@ -176,6 +150,7 @@ struct AppoinmentDetailScreen: View {
                         // Edit Button
                         Button(action: {
                             showEditSheet = true
+                            
                         }) {
                             HStack {
                                 Image(systemName: "pencil")
@@ -233,7 +208,7 @@ struct AppoinmentDetailScreen: View {
                             } else {
                                 print("Telefon araması desteklenmiyor.")
                             }
-
+                            
                         }) {
                             HStack {
                                 Image(systemName: "phone.fill")
@@ -258,25 +233,6 @@ struct AppoinmentDetailScreen: View {
                     }
                     .padding(.top, 10)
                     
-                    // Additional Info Card
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Önemli Bilgiler")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                        
-                        VStack(alignment: .leading, spacing: 8) {
-                            InfoRow(icon: "clock", title: "Randevu Saati", subtitle: "Müşteri 10 dakika önce gelmeli")
-                            InfoRow(icon: "phone", title: "İletişim", subtitle: "Değişiklik için Kuaförünüzü arayın")
-                            InfoRow(icon: "exclamationmark.triangle", title: "İptal Koşulları", subtitle: "24 saat öncesinden iptal edilebilir")
-                            InfoRow(icon: "building.2", title: "Salon Bilgisi", subtitle: appoinment.salonName)
-                        }
-                    }
-                    .padding(20)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(colorScheme == .dark ? Color(.systemGray6) : Color.white)
-                            .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 2)
-                    )
                 }
                 .padding(.horizontal, 20)
                 .padding(.bottom, 30)
@@ -294,9 +250,8 @@ struct AppoinmentDetailScreen: View {
             Text("Bu randevuyu iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz.")
         }
         .sheet(isPresented: $showEditSheet) {
-            // Edit appointment sheet
             NavigationView {
-                EditAppointmentView(appointment: appoinment)
+                EditAppointmentView(appointment: appoinment, appointmentViewModel: AppoinmentViewModel)
                     .navigationTitle("Randevu Düzenle")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbar {
@@ -384,32 +339,132 @@ struct InfoRow: View {
     }
 }
 
-// Placeholder for EditAppointmentView
 struct EditAppointmentView: View {
     let appointment: Appointment
+    let appointmentViewModel: AppoinmentViewModel  // Parametre olarak geç
     @Environment(\.presentationMode) var presentationMode
     
+    // Düzenlenebilir state değişkenleri
+    @State private var selectedDate: Date
+    @State private var selectedTime: String
+    
+    let availableTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"]
+    
+    // Initializer
+    init(appointment: Appointment, appointmentViewModel: AppoinmentViewModel) {
+        self.appointment = appointment
+        self.appointmentViewModel = appointmentViewModel
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd/MM/yyyy"
+        let initialDate = dateFormatter.date(from: appointment.appointmentDate) ?? Date()
+        
+        _selectedDate = State(initialValue: initialDate)
+        _selectedTime = State(initialValue: appointment.appointmentTime)
+    }
+    
     var body: some View {
-        VStack {
-            Text("Randevu Düzenleme")
-                .font(.title2)
-                .padding()
+        VStack(spacing: 20) {
+            // Sabit bilgiler
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("Müşteri:")
+                        .fontWeight(.medium)
+                    Spacer()
+                    Text(appointment.customerName)
+                        .foregroundColor(.secondary)
+                }
+                
+                HStack {
+                    Text("Hizmet:")
+                        .fontWeight(.medium)
+                    Spacer()
+                    Text(appointment.serviceName)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(10)
             
-            Text("Müşteri: \(appointment.customerName)")
-            Text("Hizmet: \(appointment.serviceName)")
-            Text("Tarih: \(appointment.appointmentDate)")
-            Text("Saat: \(appointment.appointmentTime)")
+            // Düzenlenebilir alanlar
+            VStack(spacing: 16) {
+                // Tarih seçici
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Randevu Tarihi")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                    
+                    DatePicker("Tarih Seçin",
+                               selection: $selectedDate,
+                               in: Date()...,
+                               displayedComponents: .date)
+                    .datePickerStyle(.compact)
+                    .labelsHidden()
+                }
+                
+                Divider()
+                
+                // Saat seçici
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Randevu Saati")
+                        .font(.headline)
+                        .fontWeight(.medium)
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack {
+                            ForEach(availableTimes, id: \.self) { time in
+                                timeButton(for: time)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+            }
+            .padding()
+            .background(Color(.systemBackground))
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
             
             Spacer()
             
+            // Kaydet butonu
             Button("Kaydet") {
-                // Save logic here
-                presentationMode.wrappedValue.dismiss()
+                let formatter = DateFormatter()
+                formatter.dateFormat = "dd.MM.yyyy"
+                let formattedDate = formatter.string(from: selectedDate)
+                
+                Task {
+                    await appointmentViewModel.updateAppointment(
+                        appointmentId: appointment.id ?? "",
+                        newDate: formattedDate,
+                        newTime: selectedTime
+                    )
+                    
+                    // Hata yoksa sheet'i kapat
+                    if appointmentViewModel.updateError == nil {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
             }
             .buttonStyle(.borderedProminent)
+            .disabled(appointmentViewModel.isUpdating)
             .padding()
         }
         .padding()
+    }
+    
+    private func timeButton(for time: String) -> some View {
+        Button(action: {
+            selectedTime = time
+        }) {
+            Text(time)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(selectedTime == time ? Color.yellow : Color.gray.opacity(0.2))
+                .foregroundColor(.black)
+                .cornerRadius(8)
+        }
     }
 }
 
@@ -423,8 +478,8 @@ struct EditAppointmentView: View {
             serviceName: "Saç Kesimi",
             appointmentDate: "23.07.2025",
             appointmentTime: "14:30",
-            status: "onaylandı",
-            createdAt: Date()
+            status: "onaylandı"
         ))
+        .environmentObject(AppoinmentViewModel())
     }
 }

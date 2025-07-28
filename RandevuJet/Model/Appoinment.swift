@@ -9,7 +9,7 @@ import Foundation
 import FirebaseFirestore
 
 struct Appointment: Identifiable, Codable {
-    @DocumentID var id: String?
+    var id: String?
     let customerName: String
     let customerTel: String
     let salonName: String
@@ -17,7 +17,6 @@ struct Appointment: Identifiable, Codable {
     let appointmentDate: String   
     let appointmentTime: String
     let status: String
-    let createdAt: Date?
     
 }
 

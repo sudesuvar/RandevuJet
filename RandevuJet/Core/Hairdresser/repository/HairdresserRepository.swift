@@ -9,6 +9,7 @@ import Foundation
 import Firebase
 import FirebaseFirestore
 import FirebaseAuth
+import FirebaseFunctions
 
 
 
@@ -16,6 +17,7 @@ class HairHairdresserRepository: ObservableObject {
     private let db = Firestore.firestore()
     @Published var userSession: FirebaseAuth.User?
     @Published var currentUser: User?
+    private lazy var functions = Functions.functions()
     
     
     /*func getAllHairdressers() async throws -> [HairDresser] {
@@ -49,10 +51,10 @@ class HairHairdresserRepository: ObservableObject {
                 appointments.append(appointment)
             }
         }
-
+        
         return appointments
     }
-
+    
     
     func getAllHairdressers() async throws -> [HairDresser] {
         let snapshot = try await db.collection("hairdressers").getDocuments()
@@ -73,10 +75,12 @@ class HairHairdresserRepository: ObservableObject {
                 let role = data["role"] as? String,
                 let status = data["status"] as? String,
                 let email = data["email"] as? String,
-                let serviceIDs = data["services"] as? [String]
+                let serviceIDs = data["services"] as? [String],
+                let workingHours = data["workingHours"] as? [String]
             else {
                 continue
             }
+            
             let services = try await fetchServicesByIds(serviceIDs)
             
             let hairdresser = HairDresser(
@@ -91,7 +95,8 @@ class HairHairdresserRepository: ObservableObject {
                 text: text,
                 createdAt: timestamp.dateValue(),
                 status: status,
-                services: services
+                services: services,
+                workingHours: workingHours
             )
             
             
@@ -123,24 +128,68 @@ class HairHairdresserRepository: ObservableObject {
         return services
     }
     
-    func createAppointment(_ appointment: Appointment) async throws {
+    /*func createAppointment(_ appointment: Appointment) async throws {
+     guard let uid = Auth.auth().currentUser?.uid else {
+     throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı oturumu yok"])
+     }
+     
+     let docRef = db.collection("appointments").document()
+     try await docRef.setData([
+     "customerUid": uid,
+     "salonName": appointment.salonName,
+     "customerName": appointment.customerName,
+     "customerTel": appointment.customerTel,
+     "serviceName": appointment.serviceName,
+     "status": appointment.status,
+     "appointmentDate": appointment.appointmentDate,
+     "appointmentTime": appointment.appointmentTime,
+     "createdAt": FieldValue.serverTimestamp(),
+     ])
+     }*/
+    
+    func createAppointment(_ appointment: Appointment) async throws -> String {
         guard let uid = Auth.auth().currentUser?.uid else {
+            print("🔥 UID boş!")
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı oturumu yok"])
         }
         
-        let docRef = db.collection("appointments").document()
-        try await docRef.setData([
-            "customerUid": uid,
-            "salonName": appointment.salonName,
-            "customerName": appointment.customerName,
-            "customerTel": appointment.customerTel,
-            "serviceName": appointment.serviceName,
-            "status": appointment.status,
+        print("📅 Tarih: \(appointment.appointmentDate)")
+        print("🕐 Saat: \(appointment.appointmentTime)")
+        print("👤 UID: \(uid)")
+        
+        let data: [String: Any] = [
             "appointmentDate": appointment.appointmentDate,
             "appointmentTime": appointment.appointmentTime,
-            "createdAt": FieldValue.serverTimestamp(),
-        ])
+            "customerUid": uid,
+            "otherFields": [
+                "salonName": appointment.salonName,
+                "customerName": appointment.customerName,
+                "customerTel": appointment.customerTel,
+                "serviceName": appointment.serviceName,
+                "status": appointment.status,
+            ]
+        ]
+        
+        print("------------------------")
+        print("📅 appointmentDate isEmpty: \(appointment.appointmentDate.isEmpty)")
+        print("🕐 appointmentTime isEmpty: \(appointment.appointmentTime.isEmpty)")
+        print(data)
+
+
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            functions.httpsCallable("checkAndCreateAppointment").call(data) { result, error in
+                if let error = error {
+                    print("🔥 Hata:", error.localizedDescription)
+                    continuation.resume(throwing: error)
+                } else if let resData = result?.data as? [String: Any],
+                          let message = resData["message"] as? String {
+                    continuation.resume(returning: message)
+                } else {
+                    continuation.resume(throwing: NSError(domain: "", code: -2, userInfo: [NSLocalizedDescriptionKey: "Beklenmeyen yanıt"]))
+                }
+            }
+        }
     }
-
-
+    
 }

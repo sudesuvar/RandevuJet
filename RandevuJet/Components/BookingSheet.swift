@@ -24,7 +24,12 @@ struct BookingSheet: View {
     
     @State private var showConfirmation = false
     
-    let availableTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"]
+    var availableTimes: [String] {
+            if let workingHours = hairdresser.workingHours, workingHours.count >= 2 {
+                return generateHourlyIntervals(from: workingHours[0], to: workingHours[1]) ?? []
+            }
+            return []
+        }
     
     var body: some View {
         Form {
@@ -111,8 +116,7 @@ struct BookingSheet: View {
             serviceName: selectedService.serviceTitle,
             appointmentDate: formattedDate,
             appointmentTime: selectedTime,
-            status: "pending",
-            createdAt: Date()
+            status: "pending"
         )
         
         Task {

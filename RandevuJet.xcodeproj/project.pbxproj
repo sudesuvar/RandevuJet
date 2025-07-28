@@ -12,7 +12,22 @@
 		9E07F3012E27C94C00A4BEA4 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 9E07F3002E27C94C00A4BEA4 /* FirebaseFirestore */; };
 		9E07F3032E27C94C00A4BEA4 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 9E07F3022E27C94C00A4BEA4 /* FirebaseStorage */; };
 		9E07F4ED2E2E451800A4BEA4 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 9E07F4EC2E2E451800A4BEA4 /* Kingfisher */; };
+		9EAF77522E351952006D6306 /* FirebaseFunctions in Frameworks */ = {isa = PBXBuildFile; productRef = 9EAF77512E351952006D6306 /* FirebaseFunctions */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		9EAF01342E352A5B006D6306 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			fileType = pattern.proxy;
+			inputFiles = (
+			);
+			isEditable = 1;
+			outputFiles = (
+			);
+			script = "# Type a script or drag a script file from your workspace to insert its path.\n";
+		};
+/* End PBXBuildRule section */
 
 /* Begin PBXContainerItemProxy section */
 		9EF671D02E277FFB00D90E60 /* PBXContainerItemProxy */ = {
@@ -31,15 +46,41 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		9EAF01352E352A83006D6306 /* Copy Files (1 item) */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			name = "Copy Files (1 item)";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		9EF671BF2E277FF900D90E60 /* RandevuJet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RandevuJet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EF671CF2E277FFB00D90E60 /* RandevuJetTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandevuJetTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9EF671D92E277FFB00D90E60 /* RandevuJetUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RandevuJetUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		9EAF01372E352AA7006D6306 /* Exceptions for "RandevuJet" folder in "Copy Files (1 item)" phase from "RandevuJet" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 9EAF01352E352A83006D6306 /* Copy Files (1 item) */;
+			membershipExceptions = (
+				"GoogleService-Info.plist",
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9EF671C12E277FF900D90E60 /* RandevuJet */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9EAF01372E352AA7006D6306 /* Exceptions for "RandevuJet" folder in "Copy Files (1 item)" phase from "RandevuJet" target */,
+			);
 			path = RandevuJet;
 			sourceTree = "<group>";
 		};
@@ -63,6 +104,7 @@
 				9E07F2FF2E27C94C00A4BEA4 /* FirebaseDatabase in Frameworks */,
 				9E07F3032E27C94C00A4BEA4 /* FirebaseStorage in Frameworks */,
 				9E07F2FD2E27C94C00A4BEA4 /* FirebaseAuth in Frameworks */,
+				9EAF77522E351952006D6306 /* FirebaseFunctions in Frameworks */,
 				9E07F3012E27C94C00A4BEA4 /* FirebaseFirestore in Frameworks */,
 				9E07F4ED2E2E451800A4BEA4 /* Kingfisher in Frameworks */,
 			);
@@ -114,9 +156,10 @@
 			buildPhases = (
 				9EF671BB2E277FF900D90E60 /* Sources */,
 				9EF671BC2E277FF900D90E60 /* Frameworks */,
-				9EF671BD2E277FF900D90E60 /* Resources */,
+				9EAF01352E352A83006D6306 /* Copy Files (1 item) */,
 			);
 			buildRules = (
+				9EAF01342E352A5B006D6306 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);
@@ -130,6 +173,7 @@
 				9E07F3002E27C94C00A4BEA4 /* FirebaseFirestore */,
 				9E07F3022E27C94C00A4BEA4 /* FirebaseStorage */,
 				9E07F4EC2E2E451800A4BEA4 /* Kingfisher */,
+				9EAF77512E351952006D6306 /* FirebaseFunctions */,
 			);
 			productName = RandevuJet;
 			productReference = 9EF671BF2E277FF900D90E60 /* RandevuJet.app */;
@@ -230,13 +274,6 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		9EF671BD2E277FF900D90E60 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		9EF671CD2E277FFB00D90E60 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -619,6 +656,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9E07F4EB2E2E451800A4BEA4 /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
+		};
+		9EAF77512E351952006D6306 /* FirebaseFunctions */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FirebaseFunctions;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
