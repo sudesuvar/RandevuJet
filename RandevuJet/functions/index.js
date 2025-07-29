@@ -43,17 +43,20 @@ functions.https.onCall(async (data, context) => {
   const appointmentDate = data.data.appointmentDate;
   const appointmentTime = data.data.appointmentTime;
   const customerUid = data.data.customerUid;
+  const salonName = data.data.salonName;
   const otherFields = data.data.otherFields;
 
   console.log("🧪 appointmentDate:", appointmentDate);
   console.log("🧪 appointmentTime:", appointmentTime);
   console.log("🧪 customerUid:", customerUid);
+  console.log("🧪 salonName:", salonName);
 
-  if (!appointmentDate || !appointmentTime || !customerUid) {
+  if (!appointmentDate || !appointmentTime || !customerUid || !salonName) {
     console.log("⚠️ Eksik alanlar:", {
       appointmentDate,
       appointmentTime,
       customerUid,
+      salonName,
     });
     throw new functions.https.HttpsError("invalid-argument", "Eksik veri.");
   }
@@ -63,6 +66,7 @@ functions.https.onCall(async (data, context) => {
         .collection("appointments")
         .where("appointmentDate", "==", appointmentDate)
         .where("appointmentTime", "==", appointmentTime)
+        .where("salonName", "==", salonName)
         .get();
 
     if (!existingAppointments.empty) {
@@ -76,6 +80,7 @@ functions.https.onCall(async (data, context) => {
       appointmentDate,
       appointmentTime,
       customerUid,
+      salonName,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
       ...otherFields,
     });

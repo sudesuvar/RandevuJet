@@ -21,6 +21,10 @@ struct BookingSheet: View {
     @State private var selectedTime = ""
     @State private var fullName = ""
     @State private var phoneNumber = ""
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+
+    
     
     @State private var showConfirmation = false
     
@@ -80,11 +84,18 @@ struct BookingSheet: View {
                 }
             }
         }
-        .alert("Randevunuz oluşturuldu!", isPresented: $showConfirmation) {
-            Button("Tamam", role: .cancel) {
-                dismiss()
-            }
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Randevu Durumu"),
+                message: Text(alertMessage),
+                dismissButton: .default(Text("Tamam")) {
+                    if alertMessage.contains("başarıyla") {
+                        dismiss()
+                    }
+                }
+            )
         }
+
     }
     
     private var canConfirm: Bool {
@@ -120,13 +131,13 @@ struct BookingSheet: View {
         )
         
         Task {
-            do {
-                try await hairdresserViewModel.createAppointment(appointment: appointment)
-                showConfirmation = true
-            } catch {
-                print("Randevu oluşturulurken hata: \(error.localizedDescription)")
-                // İstersen burada kullanıcıya hata mesajı gösterebilirsin.
+                do {
+                    try await hairdresserViewModel.createAppointment(appointment: appointment)
+                    alertMessage = "✅ Randevunuz başarıyla alındı."
+                } catch {
+                    alertMessage = "❌ Randevu oluşturulamadı: \(error.localizedDescription)"
+                }
+                showAlert = true
             }
-        }
     }
 }

@@ -114,5 +114,4 @@ struct splashScreen: View {
     splashScreen()
         .environmentObject(AuthViewModel())
         .environmentObject(ThemeViewModel())
-    
 }

@@ -152,44 +152,48 @@ class HairHairdresserRepository: ObservableObject {
             print("🔥 UID boş!")
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı oturumu yok"])
         }
-        
+
         print("📅 Tarih: \(appointment.appointmentDate)")
         print("🕐 Saat: \(appointment.appointmentTime)")
         print("👤 UID: \(uid)")
-        
+
         let data: [String: Any] = [
             "appointmentDate": appointment.appointmentDate,
             "appointmentTime": appointment.appointmentTime,
             "customerUid": uid,
+            "salonName": appointment.salonName,
             "otherFields": [
-                "salonName": appointment.salonName,
                 "customerName": appointment.customerName,
                 "customerTel": appointment.customerTel,
                 "serviceName": appointment.serviceName,
                 "status": appointment.status,
             ]
         ]
-        
+
         print("------------------------")
         print("📅 appointmentDate isEmpty: \(appointment.appointmentDate.isEmpty)")
         print("🕐 appointmentTime isEmpty: \(appointment.appointmentTime.isEmpty)")
         print(data)
 
-
-        
         return try await withCheckedThrowingContinuation { continuation in
             functions.httpsCallable("checkAndCreateAppointment").call(data) { result, error in
                 if let error = error {
                     print("🔥 Hata:", error.localizedDescription)
                     continuation.resume(throwing: error)
                 } else if let resData = result?.data as? [String: Any],
-                          let message = resData["message"] as? String {
-                    continuation.resume(returning: message)
+                          let message = resData["message"] as? String,
+                          let success = resData["success"] as? Bool {
+                    if success {
+                        continuation.resume(returning: message)
+                    } else {
+                        continuation.resume(throwing: NSError(domain: "", code: -3, userInfo: [NSLocalizedDescriptionKey: message]))
+                    }
                 } else {
                     continuation.resume(throwing: NSError(domain: "", code: -2, userInfo: [NSLocalizedDescriptionKey: "Beklenmeyen yanıt"]))
                 }
             }
         }
     }
+
     
 }

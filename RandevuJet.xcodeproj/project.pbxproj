@@ -68,9 +68,15 @@
 /* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 		9EAF01372E352AA7006D6306 /* Exceptions for "RandevuJet" folder in "Copy Files (1 item)" phase from "RandevuJet" target */ = {
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			attributesByRelativePath = {
+				Assets.xcassets = (CodeSignOnCopy, );
+				"Preview Content/Preview Assets.xcassets" = (CodeSignOnCopy, );
+			};
 			buildPhase = 9EAF01352E352A83006D6306 /* Copy Files (1 item) */;
 			membershipExceptions = (
+				Assets.xcassets,
 				"GoogleService-Info.plist",
+				"Preview Content/Preview Assets.xcassets",
 			);
 		};
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
