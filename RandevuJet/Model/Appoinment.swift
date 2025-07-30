@@ -9,7 +9,7 @@ import Foundation
 import FirebaseFirestore
 
 struct Appointment: Identifiable, Codable {
-    var id: String?
+    var id: String
     let customerName: String
     let customerTel: String
     let salonName: String

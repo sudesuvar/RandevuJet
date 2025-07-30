@@ -128,35 +128,50 @@ class HairHairdresserRepository: ObservableObject {
         return services
     }
     
-    /*func createAppointment(_ appointment: Appointment) async throws {
-     guard let uid = Auth.auth().currentUser?.uid else {
-     throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı oturumu yok"])
-     }
-     
-     let docRef = db.collection("appointments").document()
-     try await docRef.setData([
-     "customerUid": uid,
-     "salonName": appointment.salonName,
-     "customerName": appointment.customerName,
-     "customerTel": appointment.customerTel,
-     "serviceName": appointment.serviceName,
-     "status": appointment.status,
-     "appointmentDate": appointment.appointmentDate,
-     "appointmentTime": appointment.appointmentTime,
-     "createdAt": FieldValue.serverTimestamp(),
-     ])
-     }*/
+    
+    
+    func fetchAppointmentsByStatus(_ status: String) async throws -> [Appointment] {
+        var appointments: [Appointment] = []
+        
+        let querySnapshot = try await db.collection("appointments")
+            .whereField("status", isEqualTo: status)
+            .getDocuments()
+        
+        for document in querySnapshot.documents {
+            let data = document.data()
+            
+            let appointment = Appointment(
+                id: document.documentID,
+                customerName: data["customerName"] as? String ?? "",
+                customerTel: data["customerTel"] as? String ?? "",
+                salonName: data["salonName"] as? String ?? "",
+                serviceName: data["serviceName"] as? String ?? "",
+                appointmentDate: data["appointmentDate"] as? String ?? "",
+                appointmentTime: data["appointmentTime"] as? String ?? "",
+                status: data["status"] as? String ?? ""
+            )
+            print("---------------------------")
+            print(appointment)
+            appointments.append(appointment)
+        }
+        
+        return appointments
+    }
+    
+    
+    
+    
     
     func createAppointment(_ appointment: Appointment) async throws -> String {
         guard let uid = Auth.auth().currentUser?.uid else {
             print("🔥 UID boş!")
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı oturumu yok"])
         }
-
+        
         print("📅 Tarih: \(appointment.appointmentDate)")
         print("🕐 Saat: \(appointment.appointmentTime)")
         print("👤 UID: \(uid)")
-
+        
         let data: [String: Any] = [
             "appointmentDate": appointment.appointmentDate,
             "appointmentTime": appointment.appointmentTime,
@@ -169,12 +184,12 @@ class HairHairdresserRepository: ObservableObject {
                 "status": appointment.status,
             ]
         ]
-
+        
         print("------------------------")
         print("📅 appointmentDate isEmpty: \(appointment.appointmentDate.isEmpty)")
         print("🕐 appointmentTime isEmpty: \(appointment.appointmentTime.isEmpty)")
         print(data)
-
+        
         return try await withCheckedThrowingContinuation { continuation in
             functions.httpsCallable("checkAndCreateAppointment").call(data) { result, error in
                 if let error = error {
@@ -194,6 +209,6 @@ class HairHairdresserRepository: ObservableObject {
             }
         }
     }
-
+    
     
 }

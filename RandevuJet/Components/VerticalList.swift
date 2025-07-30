@@ -15,7 +15,7 @@ struct VerticalList: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Randevularım")
+                Text("Randevular")
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(colorScheme == .dark ? .white : .black)
@@ -32,12 +32,11 @@ struct VerticalList: View {
             }
             .padding(.horizontal)
             
-            if(appointments.isEmpty){
+            if hairdresserViewModel.appointmentsWithStatus.isEmpty {
                 EmptyList.appointments()
-            }else{
-                
+            } else {
                 LazyVStack(spacing: 8) {
-                    ForEach(appointments) { appointment in
+                    ForEach(hairdresserViewModel.appointmentsWithStatus) { appointment in
                         NavigationLink(destination:
                                         AppoinmentDetailScreen(appoinment: appointment)
                             .environmentObject(authViewModel)
@@ -51,8 +50,13 @@ struct VerticalList: View {
                     }
                 }
                 .padding(.horizontal)
-                
             }
+        }
+        .onAppear {
+            Task{
+                await hairdresserViewModel.fetchAppoinmentWithStatus()
+            }
+            
         }
     }
 }
@@ -106,18 +110,22 @@ struct AppoinmentCard: View {
         HStack(alignment: .top, spacing: 16) {
             
             VStack(alignment: .leading, spacing: 6) {
-                Text(appoinment.salonName ?? "")
+                Text(appoinment.salonName )
                     .font(.headline)
                 
-                Text(appoinment.appointmentDate ?? "")
+                Text(appoinment.appointmentDate)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
                 
-                Text(appoinment.appointmentTime ?? "")
+                Text(appoinment.appointmentTime )
                     .font(.footnote)
                     .foregroundColor(.secondary)
             }
             Spacer()
+            
+            VStack(alignment: .trailing, spacing: 4) {
+                StatusBadge(status: appoinment.status)
+            }
         }
         .padding()
         .background(Color(.systemBackground))
@@ -125,6 +133,62 @@ struct AppoinmentCard: View {
         .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 2)
     }
 }
+
+struct StatusBadge: View {
+    let status: String
+    @Environment(\.colorScheme) var colorScheme
+    
+    var statusColor: Color {
+        switch status.lowercased() {
+        case "confirmed", "onaylandi", "onaylandı":
+            return .green
+        case "pending", "bekliyor":
+            return .orange
+        case "cancelled", "canceled", "iptal":
+            return .red
+        case "completed", "tamamlandi", "tamamlandı":
+            return .blue
+        default:
+            return .gray
+        }
+    }
+    
+    var statusText: String {
+        switch status.lowercased() {
+        case "confirmed", "onaylandi", "onaylandı":
+            return "Onaylandı"
+        case "pending", "bekliyor":
+            return "Bekliyor"
+        case "cancelled", "canceled", "iptal":
+            return "İptal"
+        case "completed", "tamamlandi", "tamamlandı":
+            return "Tamamlandı"
+        default:
+            return status.capitalized
+        }
+    }
+    
+    var body: some View {
+        Text(statusText)
+            .font(.caption)
+            .fontWeight(.medium)
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(statusColor)
+            .cornerRadius(6)
+    }
+}
+
+// Appointment status enum (optional - you can use this if you want to refactor your data model)
+enum AppointmentStatus: String, CaseIterable {
+    case pending = "pending"
+    case confirmed = "confirmed"
+    case cancelled = "cancelled"
+    case completed = "completed"
+}
+
+
 
 
 

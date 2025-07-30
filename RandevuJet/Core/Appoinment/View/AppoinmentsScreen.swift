@@ -85,7 +85,7 @@ struct AppoinmentsScreen: View {
                         LazyVStack(spacing: 16) {
                             ForEach(filteredAppointments) { appoinment in
                                 NavigationLink(destination: AppoinmentDetailScreen(appoinment: appoinment)
-                                    .environmentObject(AppoinmentViewModel)
+                                    .environmentObject(hairdresserViewModel)
                                 ) {
                                     AppoinmentListCard(appoinment: appoinment)
                                 }

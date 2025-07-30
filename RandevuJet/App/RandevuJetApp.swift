@@ -13,7 +13,7 @@ struct RandevuJetApp: App {
     @StateObject var authViewModel = AuthViewModel()
     @StateObject private var themeViewModel = ThemeViewModel()
     @StateObject var hairdresserViewModel = HairdresserViewModel()
-    @StateObject var appoinmentViewModel = AppoinmentViewModel() 
+    @StateObject var appoinmentViewModel = AppoinmentViewModel()
     
     init() {
         FirebaseApp.configure()
