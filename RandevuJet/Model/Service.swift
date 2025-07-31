@@ -8,7 +8,7 @@
 import Foundation
 
 struct Service:Identifiable, Codable {
-    var id: String
+    var id: String?
     var serviceTitle: String
     var serviceDesc: String
     var servicePrice: String?

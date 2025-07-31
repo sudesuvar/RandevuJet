@@ -37,23 +37,35 @@ class HairHairdresserRepository: ObservableObject {
      }*/
     
     func getAllAppointments() async throws -> [Appointment] {
-        
         guard let uid = Auth.auth().currentUser?.uid else { return [] }
-        
+
         let snapshot = try await db.collection("appointments")
             .whereField("customerUid", isEqualTo: uid)
             .getDocuments()
-        
+
         var appointments: [Appointment] = []
-        
+
         for document in snapshot.documents {
-            if let appointment = try? document.data(as: Appointment.self) {
-                appointments.append(appointment)
-            }
+            let data = document.data()
+            
+            let appointment = Appointment(
+                id: document.documentID,
+                customerName: data["customerName"] as? String ?? "",
+                customerTel: data["customerTel"] as? String ?? "",
+                salonName: data["salonName"] as? String ?? "",
+                serviceName: data["serviceName"] as? String ?? "",
+                appointmentDate: data["appointmentDate"] as? String ?? "",
+                appointmentTime: data["appointmentTime"] as? String ?? "",
+                status: data["status"] as? String ?? ""
+            )
+            
+            appointments.append(appointment)
         }
-        
+
+        print(appointments)
         return appointments
     }
+
     
     
     func getAllHairdressers() async throws -> [HairDresser] {

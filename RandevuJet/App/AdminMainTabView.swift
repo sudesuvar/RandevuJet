@@ -1,24 +1,24 @@
 //
-//  MainTabView.swift
+//  AdminMainTabView.swift
 //  RandevuJet
 //
-//  Created by sude on 18.07.2025.
+//  Created by sude on 31.07.2025.
 //
 
 import Foundation
 import SwiftUI
 
-struct MainTabView: View {
+struct AdminMainTabView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     var body: some View {
         TabView {
-            HomeScreen()
+            AdminHomeScreen()
                 .tabItem {
                     Label("Anasayfa", systemImage: "house")
                 }
-            profileScreen()
+            AdminProfileScreen()
                 .tabItem {
                     Label("Profil", systemImage: "person.circle")
                 }
@@ -27,14 +27,12 @@ struct MainTabView: View {
 }
 
 
-struct MainTabView_Previews: PreviewProvider {
+struct AdminMainTabView_Previews: PreviewProvider {
     static var previews: some View {
-        MainTabView()
+        AdminMainTabView()
             .environmentObject(AuthViewModel())
             .environmentObject(ThemeViewModel())
             .environmentObject(HairdresserViewModel())
     }
 }
-
-
 
