@@ -198,5 +198,8 @@ struct registerScreen: View {
 struct registerScreen_Previews: PreviewProvider {
     static var previews: some View {
         registerScreen()
+            .environmentObject(AuthViewModel())
+            .environmentObject(ThemeViewModel())
+            .environmentObject(HairdresserViewModel())
     }
 }

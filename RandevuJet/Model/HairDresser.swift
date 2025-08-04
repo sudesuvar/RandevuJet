@@ -11,7 +11,7 @@ struct HairDresser:Identifiable, Codable {
     var id: String
     var salonName: String
     var email: String
-    var role: String?
+    var role: String
     var address: String?
     var phone: String?
     var photo: String?

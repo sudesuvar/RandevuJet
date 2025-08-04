@@ -12,6 +12,7 @@ struct MainTabView: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
+    @EnvironmentObject var appoinmentViewModel: AppoinmentViewModel
     var body: some View {
         TabView {
             HomeScreen()
@@ -33,6 +34,7 @@ struct MainTabView_Previews: PreviewProvider {
             .environmentObject(AuthViewModel())
             .environmentObject(ThemeViewModel())
             .environmentObject(HairdresserViewModel())
+            .environmentObject(AppoinmentViewModel())
     }
 }
 

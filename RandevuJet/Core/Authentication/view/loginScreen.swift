@@ -18,6 +18,7 @@ struct loginScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
+    @EnvironmentObject var appoinmentViewModel: AppoinmentViewModel
     var userType: UserType
     @State private var email = ""
     @State private var password = ""
@@ -25,7 +26,10 @@ struct loginScreen: View {
     @State private var isSecureField = true
     @State private var showAlert = false
     @State private var alertMessage = ""
-    @State private var isLoggedIn = false 
+    @State private var isLoggedIn = false
+    
+    @State private var userRole: String? = nil
+    
     
     var body: some View {
         VStack(spacing: 30) {
@@ -95,16 +99,15 @@ struct loginScreen: View {
             // Giriş Butonu
             Button(action: {
                 //handleLogin()
-                Task{
-                    try await authViewModel.signIn(withEmail: email, password: password)
-                    NavigationLink(destination:HomeScreen()
-                        .environmentObject(authViewModel)
-                        .environmentObject(themeViewModel)
-                        .environmentObject(hairdresserViewModel),
-                                   isActive: $isLoggedIn) {
-                        EmptyView()
+                Task {
+                    do {
+                        try await authViewModel.signIn(withEmail: email, password: password)
+                        self.userRole = authViewModel.currentRole
+                        self.isLoggedIn = true
+                    } catch {
+                        alertMessage = "Giriş başarısız: \(error.localizedDescription)"
+                        showAlert = true
                     }
-                                   .hidden()
                 }
                 
             }) {
@@ -119,6 +122,32 @@ struct loginScreen: View {
             .padding(.horizontal, 32)
             .disabled(email.isEmpty || password.isEmpty)
             .opacity(email.isEmpty || password.isEmpty ? 0.6 : 1.0)
+            NavigationLink(destination:
+                            AdminMainTabView()
+                .environmentObject(authViewModel)
+                .environmentObject(themeViewModel)
+                .environmentObject(hairdresserViewModel)
+                .environmentObject(appoinmentViewModel),
+                           isActive: Binding(get: {
+                isLoggedIn && userType == .customer
+            }, set: { _ in })
+            ) {
+                EmptyView()
+            }
+            
+            NavigationLink(destination:
+                            AdminMainTabView()
+                .environmentObject(authViewModel)
+                .environmentObject(themeViewModel)
+                .environmentObject(hairdresserViewModel)
+                .environmentObject(appoinmentViewModel),
+                           isActive: Binding(get: {
+                isLoggedIn && userType == .hairdresser
+            }, set: { _ in })
+            ) {
+                EmptyView()
+            }
+            
             
             // Social Login Options
             VStack(spacing: 15) {
@@ -189,6 +218,7 @@ struct loginScreen: View {
                                 .environmentObject(authViewModel)
                                 .environmentObject(themeViewModel)
                                 .environmentObject(hairdresserViewModel)
+                                .environmentObject(appoinmentViewModel)
                                 .navigationBarBackButtonHidden(true)
                             
                         } else {
@@ -196,6 +226,7 @@ struct loginScreen: View {
                                 .environmentObject(authViewModel)
                                 .environmentObject(themeViewModel)
                                 .environmentObject(hairdresserViewModel)
+                                .environmentObject(appoinmentViewModel)
                                 .navigationBarBackButtonHidden(true)
                         }
                     }) {
@@ -390,5 +421,9 @@ struct ForgotPasswordView: View {
 struct loginScreenPreview: PreviewProvider {
     static var previews: some View {
         loginScreen(userType: .null)
+            .environmentObject(AuthViewModel())
+            .environmentObject(ThemeViewModel())
+            .environmentObject(HairdresserViewModel())
     }
 }
+

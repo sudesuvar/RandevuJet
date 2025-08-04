@@ -12,6 +12,7 @@ struct hairdresserRegisterScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
+    @EnvironmentObject var appoinmentViewModel: AppoinmentViewModel
     @State private var salonName = ""
     @State private var email = ""
     @State private var password = ""
@@ -181,6 +182,7 @@ struct hairdresserRegisterScreen: View {
                 .environmentObject(authViewModel)
                 .environmentObject(themeViewModel)
                 .environmentObject(hairdresserViewModel)
+                .environmentObject(appoinmentViewModel)
                 .padding(.top)
                 .background(Color.white)
                 .ignoresSafeArea()

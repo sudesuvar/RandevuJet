@@ -205,12 +205,21 @@ struct profileScreen: View {
             ProgressView()
                 .onAppear {
                     Task {
-                        do {
-                            try await authViewModel.fetchUserData()
-                        } catch {
-                            print("Kullanıcı verisi alınamadı: \(error)")
+                            do {
+                                try await authViewModel.fetchUserData()
+                                if authViewModel.currentUser == nil {
+                                    print("Firestore’da kullanıcı yok, çıkış yapılıyor...")
+                                    try await authViewModel.signOut()
+                                }
+                            } catch {
+                                print("Kullanıcı verisi alınamadı: \(error)")
+                                do {
+                                    try await authViewModel.signOut()
+                                } catch {
+                                    print("Sign out hatası: \(error)")
+                                }
+                            }
                         }
-                    }
                 }
         }
     }
