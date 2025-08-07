@@ -19,7 +19,7 @@ struct loginScreen: View {
     @EnvironmentObject var themeViewModel: ThemeViewModel
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     @EnvironmentObject var appoinmentViewModel: AppoinmentViewModel
-    var userType: UserType
+    @Binding var userType: UserType
     @State private var email = ""
     @State private var password = ""
     @State private var showForgotPassword = false
@@ -102,13 +102,27 @@ struct loginScreen: View {
                 Task {
                     do {
                         try await authViewModel.signIn(withEmail: email, password: password)
-                        self.userRole = authViewModel.currentRole
+
+                        if authViewModel.currentRole == "customer" {
+                            self.userType = .customer
+                        } else if authViewModel.currentRole == "hairdresser" {
+                            self.userType = .hairdresser
+                        } else {
+                            self.userType = .null
+                        }
+                        print(isLoggedIn)
                         self.isLoggedIn = true
+                        print("giriş yaptı mı")
+                        print(isLoggedIn)
+                        print("Login successful! Role: \(authViewModel.currentRole)")
+                        print("isLoggedIn: \(isLoggedIn), userType: \(userType)")
+
                     } catch {
                         alertMessage = "Giriş başarısız: \(error.localizedDescription)"
                         showAlert = true
                     }
                 }
+
                 
             }) {
                 Text("Giriş Yap")
@@ -123,7 +137,7 @@ struct loginScreen: View {
             .disabled(email.isEmpty || password.isEmpty)
             .opacity(email.isEmpty || password.isEmpty ? 0.6 : 1.0)
             NavigationLink(destination:
-                            AdminMainTabView()
+                            MainTabView()
                 .environmentObject(authViewModel)
                 .environmentObject(themeViewModel)
                 .environmentObject(hairdresserViewModel)
@@ -414,16 +428,6 @@ struct ForgotPasswordView: View {
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPred = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
         return emailPred.evaluate(with: email)
-    }
-}
-
-// Preview
-struct loginScreenPreview: PreviewProvider {
-    static var previews: some View {
-        loginScreen(userType: .null)
-            .environmentObject(AuthViewModel())
-            .environmentObject(ThemeViewModel())
-            .environmentObject(HairdresserViewModel())
     }
 }
 

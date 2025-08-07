@@ -14,6 +14,7 @@ struct RandevuJetApp: App {
     @StateObject private var themeViewModel = ThemeViewModel()
     @StateObject var hairdresserViewModel = HairdresserViewModel()
     @StateObject var appoinmentViewModel = AppoinmentViewModel()
+    @StateObject var adminViewModel = AdminViewModel()
     
     init() {
         FirebaseApp.configure()
@@ -26,7 +27,8 @@ struct RandevuJetApp: App {
                     .environmentObject(authViewModel)
                     .environmentObject(themeViewModel)
                     .environmentObject(hairdresserViewModel)
-                    .environmentObject(appoinmentViewModel) 
+                    .environmentObject(appoinmentViewModel)
+                    .environmentObject(adminViewModel)
                     .preferredColorScheme(themeViewModel.isDarkMode ? .dark : .light)
             }
         }

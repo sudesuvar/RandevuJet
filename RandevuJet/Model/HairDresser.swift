@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
 struct HairDresser:Identifiable, Codable {
     var id: String
@@ -17,9 +18,8 @@ struct HairDresser:Identifiable, Codable {
     var photo: String?
     var employeesNumber: Int?
     var text: String?
-    var createdAt: Date?
     var status: String?
-    var services: [Service]?
+    var services: [String]? 
     var workingHours: [String]?
 
     

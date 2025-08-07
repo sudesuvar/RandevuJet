@@ -54,7 +54,7 @@ class AuthViewModel : ObservableObject{
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             self.userSession = result.user
             
-            let newHairdresser = HairDresser(id: result.user.uid, salonName: salonName, email: email, role: role, createdAt: Date())
+            let newHairdresser = HairDresser(id: result.user.uid, salonName: salonName, email: email, role: role)
             try Firestore.firestore()
                 .collection("hairdressers")
                 .document(result.user.uid)
@@ -62,7 +62,7 @@ class AuthViewModel : ObservableObject{
             
             print("------------------------------")
             print("Success create hairdresser: \(newHairdresser)")
-            try await fetchHairdresserData()
+            try await fetchUserOrHairdresserData()
             
         } catch {
             print("*******************************************")
@@ -77,10 +77,10 @@ class AuthViewModel : ObservableObject{
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             self.userSession = result.user
             
-            let encoderUser = User(id: result.user.uid, nameSurname: fullName, email: email, role: role, createdAt:Date())
+            let encoderUser = User(id: result.user.uid, nameSurname: fullName, email: email, role: role)
             try Firestore.firestore().collection("users").document(result.user.uid).setData(from: encoderUser)
             print("User saved to Firestore: \(encoderUser)")
-            try await fetchUserData()
+            try await fetchUserOrHairdresserData()
         } catch {
             print("debug failed create user: \(error.localizedDescription)")
         }
@@ -199,40 +199,79 @@ class AuthViewModel : ObservableObject{
     
     @MainActor
     func fetchUserOrHairdresserData() async throws {
-        guard let uid = Auth.auth().currentUser?.uid else {
-            print("Kullanıcı oturumu yok")
-            return
+        isLoading = true
+        defer { isLoading = false }  // Fonksiyon sonunda kesin çalışacak
+
+        guard let uid = userSession?.uid else {
+            print("[fetchUserOrHairdresserData] Kullanıcı oturumu bulunamadı.")
+            throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı oturumu bulunamadı."])
         }
         
-        let db = Firestore.firestore()
-        
-        // users koleksiyonunda ara
-        let userDoc = try await db.collection("users").document(uid).getDocument()
-        if userDoc.exists {
-            self.currentUser = try userDoc.data(as: User.self)
-            self.currentHairdresser = nil
-            self.currentRole = currentUser?.role
-            print("Kullanıcı bulundu: \(String(describing: currentUser))")
-            return
+        let userRef = Firestore.firestore().collection("users").document(uid)
+        let hairdresserRef = Firestore.firestore().collection("hairdressers").document(uid)
+
+        do {
+            print("[fetchUserOrHairdresserData] Kullanıcı verisi sorgulanıyor: users/\(uid)")
+            let userDoc = try await userRef.getDocument()
+            
+            if userDoc.exists {
+                if let userData = userDoc.data() {
+                    print("[fetchUserOrHairdresserData] Kullanıcı verisi Firestore'dan geldi: \(userData)")
+                } else {
+                    print("[fetchUserOrHairdresserData] Kullanıcı dokümanında veri yok.")
+                }
+                
+                do {
+                    self.currentUser = try userDoc.data(as: User.self)
+                    self.currentRole = "customer"
+                    print("[fetchUserOrHairdresserData] Kullanıcı decode edildi: \(String(describing: currentUser))")
+                    return
+                } catch {
+                    print("[fetchUserOrHairdresserData] Kullanıcı decode hatası: \(error)")
+                    throw error
+                }
+            } else {
+                print("[fetchUserOrHairdresserData] Kullanıcı dokümanı bulunamadı.")
+            }
+        } catch {
+            print("[fetchUserOrHairdresserData] Kullanıcı verisi alınırken hata: \(error)")
+            throw error
         }
-        
-        // Eğer kullanıcı yoksa hairdressers koleksiyonunda ara
-        let hairdresserDoc = try await db.collection("hairdressers").document(uid).getDocument()
-        if hairdresserDoc.exists {
-            self.currentHairdresser = try hairdresserDoc.data(as: HairDresser.self)
-            self.currentUser = nil
-            self.currentRole = currentHairdresser?.role
-            print("Kuaför bulundu: \(String(describing: currentHairdresser))")
-            return
+
+        do {
+            print("[fetchUserOrHairdresserData] Kuaför verisi sorgulanıyor: hairdressers/\(uid)")
+            let hairdresserDoc = try await hairdresserRef.getDocument()
+            
+            if hairdresserDoc.exists {
+                if let hairdresserData = hairdresserDoc.data() {
+                    print("[fetchUserOrHairdresserData] Kuaför verisi Firestore'dan geldi: \(hairdresserData)")
+                } else {
+                    print("[fetchUserOrHairdresserData] Kuaför dokümanında veri yok.")
+                }
+                
+                do {
+                    self.currentHairdresser = try hairdresserDoc.data(as: HairDresser.self)
+                    self.currentRole = "hairdresser"
+                    print("[fetchUserOrHairdresserData] Kuaför decode edildi: \(String(describing: currentHairdresser))")
+                    return
+                } catch {
+                    print("[fetchUserOrHairdresserData] Kuaför decode hatası: \(error)")
+                    throw error
+                }
+            } else {
+                print("[fetchUserOrHairdresserData] Kuaför dokümanı bulunamadı.")
+            }
+        } catch {
+            print("[fetchUserOrHairdresserData] Kuaför verisi alınırken hata: \(error)")
+            throw error
         }
-        
-        // Hiçbiri yoksa
-        print("Kullanıcı ya da kuaför verisi bulunamadı")
-        self.currentUser = nil
-        self.currentHairdresser = nil
-        self.currentRole = nil
+
+        print("[fetchUserOrHairdresserData] Kullanıcı veya kuaför bilgisi bulunamadı.")
+        throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı bilgileri alınamadı."])
     }
-    
+
+
+
     
     
     

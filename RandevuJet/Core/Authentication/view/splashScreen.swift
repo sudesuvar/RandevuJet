@@ -15,10 +15,13 @@ struct splashScreen: View {
     @EnvironmentObject var themeViewModel: ThemeViewModel
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     @EnvironmentObject var appoinmentViewModel: AppoinmentViewModel
+    @EnvironmentObject var adminViewModel: AdminViewModel
     
     @State private var animateImage = false
     @State private var animateText = false
     @State private var animateButtons = false
+    @State private var selectedUserType: UserType = .null
+
     
     var body: some View {
         Group {
@@ -30,6 +33,9 @@ struct splashScreen: View {
                 if role == "customer" {
                     MainTabView()
                 } else if role == "hairdresser" {
+                    /*InformationScreen()
+                        .environmentObject(adminViewModel)
+                        .environmentObject(authViewModel)*/
                     AdminMainTabView()
                 } else {
                     splashContent
@@ -44,6 +50,9 @@ struct splashScreen: View {
             animateImage = true
             animateText = true
             animateButtons = true
+            Task {
+                try await authViewModel.fetchUserOrHairdresserData()
+                }
         }
     }
     
@@ -80,35 +89,48 @@ struct splashScreen: View {
                 .animation(.easeInOut(duration: 0.6).delay(0.6), value: animateText)
             
             VStack(spacing: 12) {
-                NavigationLink(destination: loginScreen(userType: .customer)
-                    .environmentObject(authViewModel)
-                    .environmentObject(themeViewModel)
-                    .environmentObject(hairdresserViewModel)
-                    .environmentObject(appoinmentViewModel)) {
-                        Text("Kullanıcı Girişi")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.yellow)
-                            .cornerRadius(999)
-                    }
+                NavigationLink(destination:
+                    loginScreen(userType: $selectedUserType)
+                        .environmentObject(authViewModel)
+                        .environmentObject(themeViewModel)
+                        .environmentObject(hairdresserViewModel)
+                        .environmentObject(appoinmentViewModel)
+                ) {
+                    Text("Kullanıcı Girişi")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.yellow)
+                        .cornerRadius(999)
+                }
+                .navigationBarBackButtonHidden(true)
+                .onTapGesture {
+                    selectedUserType = .customer
+                }
+
                     .navigationBarBackButtonHidden(true)
                 
-                NavigationLink(destination: loginScreen(userType: .hairdresser)
-                    .environmentObject(authViewModel)
-                    .environmentObject(themeViewModel)
-                    .environmentObject(hairdresserViewModel)
-                    .environmentObject(appoinmentViewModel)) {
-                        Text("Kuaför Girişi")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color(.systemGray5))
-                            .cornerRadius(999)
-                    }
-                    .navigationBarBackButtonHidden(true)
+                NavigationLink(destination:
+                    loginScreen(userType: $selectedUserType)
+                        .environmentObject(authViewModel)
+                        .environmentObject(themeViewModel)
+                        .environmentObject(hairdresserViewModel)
+                        .environmentObject(appoinmentViewModel)
+                ) {
+                    Text("Kuaför Girişi")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(.systemGray5))
+                        .cornerRadius(999)
+                }
+                .navigationBarBackButtonHidden(true)
+                .onTapGesture {
+                    selectedUserType = .hairdresser
+                }
+
             }
             .padding(.horizontal)
             .opacity(animateButtons ? 1 : 0)

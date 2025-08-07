@@ -13,7 +13,7 @@ class HairdresserViewModel: ObservableObject {
     @Published var appointments: [Appointment] = []
     @Published var appointmentsWithStatus: [Appointment] = []
     
-    private let repository = HairHairdresserRepository()
+    private let repository = HairdresserRepository()
     
     init() {
         Task {

@@ -11,31 +11,12 @@ import FirebaseFirestore
 import FirebaseAuth
 import FirebaseFunctions
 
-
-
-class HairHairdresserRepository: ObservableObject {
+class HairdresserRepository: ObservableObject {
     private let db = Firestore.firestore()
     @Published var userSession: FirebaseAuth.User?
     @Published var currentUser: User?
     private lazy var functions = Functions.functions()
-    
-    
-    /*func getAllHairdressers() async throws -> [HairDresser] {
-     let snapshot = try await db.collection("hairdressers").getDocuments()
-     var hairdressers: [HairDresser] = []
-     
-     for document in snapshot.documents {
-     print(document.data())
-     
-     if let hairdresser = try? document.data(as: HairDresser.self) {
-     hairdressers.append(hairdresser)
-     }
-     }
-     print("aaaaaaaaaaaa")
-     print(hairdressers)
-     return hairdressers
-     }*/
-    
+
     func getAllAppointments() async throws -> [Appointment] {
         guard let uid = Auth.auth().currentUser?.uid else { return [] }
 
@@ -47,7 +28,7 @@ class HairHairdresserRepository: ObservableObject {
 
         for document in snapshot.documents {
             let data = document.data()
-            
+
             let appointment = Appointment(
                 id: document.documentID,
                 customerName: data["customerName"] as? String ?? "",
@@ -58,7 +39,7 @@ class HairHairdresserRepository: ObservableObject {
                 appointmentTime: data["appointmentTime"] as? String ?? "",
                 status: data["status"] as? String ?? ""
             )
-            
+
             appointments.append(appointment)
         }
 
@@ -66,35 +47,26 @@ class HairHairdresserRepository: ObservableObject {
         return appointments
     }
 
-    
-    
     func getAllHairdressers() async throws -> [HairDresser] {
         let snapshot = try await db.collection("hairdressers").getDocuments()
         var hairdressers: [HairDresser] = []
-        
+
         for document in snapshot.documents {
             let data = document.data()
-            print(document.data())
-            
-            guard
-                let salonName = data["salonName"] as? String,
-                let phone = data["phone"] as? String,
-                let photo = data["photo"] as? String,
-                let timestamp = data["createdAt"] as? Timestamp,
-                let address = data["address"] as? String,
-                let employeesNumber = data["employeesNumber"] as? Int,
-                let text = data["text"] as? String,
-                let role = data["role"] as? String,
-                let status = data["status"] as? String,
-                let email = data["email"] as? String,
-                let serviceIDs = data["services"] as? [String],
-                let workingHours = data["workingHours"] as? [String]
-            else {
-                continue
-            }
-            
-            let services = try await fetchServicesByIds(serviceIDs)
-            
+
+            let salonName = data["salonName"] as? String ?? "Bilinmiyor"
+            let phone = data["phone"] as? String ?? ""
+            let photo = data["photo"] as? String ?? ""
+            let address = data["address"] as? String ?? ""
+            let employeesNumber = data["employeesNumber"] as? Int ?? 0
+            let text = data["text"] as? String ?? ""
+            let role = data["role"] as? String ?? ""
+            let status = data["status"] as? String ?? ""
+            let email = data["email"] as? String ?? ""
+
+            let services = data["services"] as? [String] ?? []
+            let workingHours = data["workingHours"] as? [String] ?? []
+
             let hairdresser = HairDresser(
                 id: document.documentID,
                 salonName: salonName,
@@ -105,27 +77,25 @@ class HairHairdresserRepository: ObservableObject {
                 photo: photo,
                 employeesNumber: employeesNumber,
                 text: text,
-                createdAt: timestamp.dateValue(),
                 status: status,
                 services: services,
                 workingHours: workingHours
             )
-            
-            
+
             hairdressers.append(hairdresser)
         }
-        
-        print("Kuaförler: \(hairdressers)")
+
+        print("Kuaför listesi: \(hairdressers)")
         return hairdressers
     }
-    
-    private func fetchServicesByIds(_ ids: [String]) async throws -> [Service] {
+
+    func fetchServicesByIds(_ ids: [String]) async throws -> [Service] {
         var services: [Service] = []
-        
+
         for id in ids {
             let docRef = db.collection("services").document(id)
             let document = try await docRef.getDocument()
-            
+
             if let data = document.data() {
                 let service = Service(
                     id: document.documentID,
@@ -139,19 +109,17 @@ class HairHairdresserRepository: ObservableObject {
         }
         return services
     }
-    
-    
-    
+
     func fetchAppointmentsByStatus(_ status: String) async throws -> [Appointment] {
         var appointments: [Appointment] = []
-        
+
         let querySnapshot = try await db.collection("appointments")
             .whereField("status", isEqualTo: status)
             .getDocuments()
-        
+
         for document in querySnapshot.documents {
             let data = document.data()
-            
+
             let appointment = Appointment(
                 id: document.documentID,
                 customerName: data["customerName"] as? String ?? "",
@@ -166,24 +134,21 @@ class HairHairdresserRepository: ObservableObject {
             print(appointment)
             appointments.append(appointment)
         }
-        
+
+        print("burası mı sorun")
         return appointments
     }
-    
-    
-    
-    
-    
+
     func createAppointment(_ appointment: Appointment) async throws -> String {
         guard let uid = Auth.auth().currentUser?.uid else {
             print("🔥 UID boş!")
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı oturumu yok"])
         }
-        
-        print("📅 Tarih: \(appointment.appointmentDate)")
+
+        print("🗓 Tarih: \(appointment.appointmentDate)")
         print("🕐 Saat: \(appointment.appointmentTime)")
         print("👤 UID: \(uid)")
-        
+
         let data: [String: Any] = [
             "appointmentDate": appointment.appointmentDate,
             "appointmentTime": appointment.appointmentTime,
@@ -196,12 +161,12 @@ class HairHairdresserRepository: ObservableObject {
                 "status": appointment.status,
             ]
         ]
-        
+
         print("------------------------")
-        print("📅 appointmentDate isEmpty: \(appointment.appointmentDate.isEmpty)")
+        print("🗓 appointmentDate isEmpty: \(appointment.appointmentDate.isEmpty)")
         print("🕐 appointmentTime isEmpty: \(appointment.appointmentTime.isEmpty)")
         print(data)
-        
+
         return try await withCheckedThrowingContinuation { continuation in
             functions.httpsCallable("checkAndCreateAppointment").call(data) { result, error in
                 if let error = error {
@@ -221,6 +186,4 @@ class HairHairdresserRepository: ObservableObject {
             }
         }
     }
-    
-    
 }

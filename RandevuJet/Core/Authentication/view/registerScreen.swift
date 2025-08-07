@@ -12,6 +12,7 @@ struct registerScreen: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var showLoginScreen = false
+    @State private var selectedUserType: UserType = .null
     
     var body: some View {
         VStack(spacing: 30) {
@@ -125,8 +126,9 @@ struct registerScreen: View {
                     .foregroundColor(.black)
                 
                 Button("Giriş Yap") {
-                    showLoginScreen = true
-                }
+                            selectedUserType = .customer
+                            showLoginScreen = true
+                        }
                 .fontWeight(.bold)
                 .foregroundColor(.yellow)
             }
@@ -136,11 +138,11 @@ struct registerScreen: View {
         .background(Color.white)
         .ignoresSafeArea()
         .fullScreenCover(isPresented: $showLoginScreen) {
-            loginScreen(userType: .customer)
-                .environmentObject(authViewModel)
-                .environmentObject(themeViewModel)
-                .environmentObject(hairdresserViewModel)
-        }
+                   loginScreen(userType: $selectedUserType)
+                       .environmentObject(authViewModel)
+                       .environmentObject(themeViewModel)
+                       .environmentObject(hairdresserViewModel)
+               }
         
         .alert("Uyarı", isPresented: $showAlert) {
             Button("Tamam", role: .cancel) { }

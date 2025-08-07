@@ -20,6 +20,8 @@ struct hairdresserRegisterScreen: View {
     @State private var showAlert = false
     @State private var alertMessage = ""
     @State private var showLoginScreen = false
+    @State private var selectedUserType: UserType = .null
+
     
     var body: some View {
         VStack(spacing: 30) {
@@ -170,15 +172,17 @@ struct hairdresserRegisterScreen: View {
                     .foregroundColor(.black)
                 
                 Button("Giriş Yap") {
+                    selectedUserType = .hairdresser
                     showLoginScreen = true
                 }
+
                 .fontWeight(.bold)
                 .foregroundColor(.yellow)
             }
             .padding(.bottom, 16)
         }
         .fullScreenCover(isPresented: $showLoginScreen) {
-            loginScreen(userType: .hairdresser)
+            loginScreen(userType: $selectedUserType)
                 .environmentObject(authViewModel)
                 .environmentObject(themeViewModel)
                 .environmentObject(hairdresserViewModel)
@@ -187,6 +191,7 @@ struct hairdresserRegisterScreen: View {
                 .background(Color.white)
                 .ignoresSafeArea()
         }
+
         .alert("Uyarı", isPresented: $showAlert) {
             Button("Tamam", role: .cancel) { }
         } message: {

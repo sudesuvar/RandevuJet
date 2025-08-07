@@ -5,16 +5,19 @@
    version = "2.0">
    <Breakpoints>
       <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.SymbolicBreakpoint">
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "1E8380DB-9F6D-4EE2-9DF0-9B593A8074E7"
-            shouldBeEnabled = "Yes"
+            uuid = "1A855DDA-33A6-4490-8E5F-D387B5A8FB75"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            symbolName = ""
-            moduleName = "">
-            <Locations>
-            </Locations>
+            filePath = "RandevuJet/Core/Admin/Repository/AdminRepository.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "83"
+            endingLineNumber = "83"
+            landmarkName = "updateHairdresserData(address:phone:photo:employeesNumber:text:services:workingStartTime:workingEndTime:status:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

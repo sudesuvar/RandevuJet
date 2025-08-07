@@ -5,21 +5,15 @@
 //  Created by sude on 31.07.2025.
 //
 
-//
-//  AdminHomeScreen.swift
-//  RandevuJet
-//
-//  Created by sude on 31.07.2025.
-//
-
 import Foundation
 import SwiftUI
 
-
 struct AdminHomeScreen: View {
+    @EnvironmentObject var adminViewModel: AdminViewModel
     @State private var selectedFilter: AppointmentStatusAdmin = .all
     @State private var searchText = ""
-
+    
+    // Örnek appointments (istersen adminViewModel.appointments kullanabilirsin)
     @State private var appointments = [
         Appointment(id: "1", customerName: "Ayşe Yılmaz", customerTel: "+90 555 123 4567", salonName: "Salon Güzellik", serviceName: "Saç Kesimi + Fön", appointmentDate: "2025-07-31", appointmentTime: "10:00", status: "pending"),
         Appointment(id: "2", customerName: "Mehmet Demir", customerTel: "+90 555 987 6543", salonName: "Salon Güzellik", serviceName: "Saç Boyama", appointmentDate: "2025-07-31", appointmentTime: "14:30", status: "confirmed"),
@@ -28,12 +22,13 @@ struct AdminHomeScreen: View {
         Appointment(id: "5", customerName: "Zeynep Ak", customerTel: "+90 555 789 1234", salonName: "Salon Güzellik", serviceName: "Ombre Boyama", appointmentDate: "2025-07-29", appointmentTime: "13:00", status: "completed"),
         Appointment(id: "6", customerName: "Can Öztürk", customerTel: "+90 555 654 3210", salonName: "Salon Güzellik", serviceName: "Saç + Sakal", appointmentDate: "2025-07-31", appointmentTime: "18:00", status: "pending")
     ]
-
+    
+    // Filtrelenmiş randevular
     var filteredAppointments: [Appointment] {
-        let statusFiltered = appointments.filter { appointment in
+        let statusFiltered = adminViewModel.appointments.filter { appointment in
             selectedFilter == .all || appointment.status == selectedFilter.rawValue
         }
-
+        
         if searchText.isEmpty {
             return statusFiltered
         } else {
@@ -43,51 +38,58 @@ struct AdminHomeScreen: View {
             }
         }
     }
-
+    
     var body: some View {
-            VStack(spacing: 0) {
-                //statsCardsView
-                searchBarView
-                filterChipsViewAdmin
-                appointmentListView
+        VStack(spacing: 0) {
+            if adminViewModel.isLoading {
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                searchBarView()
+                filterChipsViewAdmin()
+                
+                if adminViewModel.appointments.isEmpty {
+                    emptyListView()
+                } else {
+                    appointmentListView()
+                }
             }
-        
-    }
-
-    private var statsCardsView: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 15) {
-                StatsCard(title: "Bugün", count: appointments.filter { isTodayAppointment($0.appointmentDate) }.count, icon: "calendar.circle.fill", color: .blue)
-                StatsCard(title: "Onay Bekleyen", count: appointments.filter { $0.status == "pending" }.count, icon: "clock.circle.fill", color: .orange)
-                StatsCard(title: "Onaylanan", count: appointments.filter { $0.status == "confirmed" }.count, icon: "checkmark.circle.fill", color: .green)
-                StatsCard(title: "Tamamlanan", count: appointments.filter { $0.status == "completed" }.count, icon: "star.circle.fill", color: .purple)
-            }
-            .padding(.horizontal)
         }
-        .padding(.bottom)
+        .onAppear {
+            Task {
+                await adminViewModel.loadInitialData()
+            }
+        }
+        .navigationBarHidden(true)
     }
-
-    private var searchBarView: some View {
+    
+    // MARK: - Alt Görünümler Fonksiyonları
+    
+    @ViewBuilder
+    private func searchBarView() -> some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.secondary)
             TextField("Müşteri adı veya hizmet ara...", text: $searchText)
                 .textFieldStyle(PlainTextFieldStyle())
+                .disableAutocorrection(true)
         }
         .padding()
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(.secondarySystemBackground)))
         .padding(.horizontal)
         .padding(.bottom)
+        .padding(.top, 0)
     }
-
-    private var filterChipsViewAdmin: some View {
+    
+    @ViewBuilder
+    private func filterChipsViewAdmin() -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
                 ForEach(AppointmentStatusAdmin.allCases, id: \.self) { status in
                     FilterChipAdmin(
                         title: status.displayName,
                         isSelected: selectedFilter == status,
-                        count: status == .all ? appointments.count : appointments.filter { $0.status == status.rawValue }.count
+                        count: status == .all ? adminViewModel.appointments.count : adminViewModel.appointments.filter { $0.status == status.rawValue }.count
                     ) {
                         selectedFilter = status
                     }
@@ -97,30 +99,18 @@ struct AdminHomeScreen: View {
         }
         .padding(.bottom)
     }
-
-    private var appointmentListView: some View {
+    
+    @ViewBuilder
+    private func appointmentListView() -> some View {
         List {
             if filteredAppointments.isEmpty {
-                VStack(spacing: 16) {
-                    Image(systemName: "calendar.badge.exclamationmark")
-                        .font(.system(size: 50))
-                        .foregroundColor(.secondary)
-                    Text("Randevu bulunamadı")
-                        .font(.headline)
-                        .foregroundColor(.secondary)
-                    Text("Seçilen filtre için randevu bulunmamaktadır.")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 50)
-                .listRowSeparator(.hidden)
+                emptyListView()
+                    .listRowSeparator(.hidden)
             } else {
                 ForEach(filteredAppointments) { appointment in
                     AppointmentRowView(appointment: appointment) { updatedAppointment in
-                        if let index = appointments.firstIndex(where: { $0.id == updatedAppointment.id }) {
-                            appointments[index] = updatedAppointment
+                        if let index = adminViewModel.appointments.firstIndex(where: { $0.id == updatedAppointment.id }) {
+                            adminViewModel.appointments[index] = updatedAppointment
                         }
                     }
                     .listRowSeparator(.hidden)
@@ -129,13 +119,35 @@ struct AdminHomeScreen: View {
             }
         }
         .listStyle(PlainListStyle())
+            .scrollContentBackground(.hidden) // iOS 16+ ile list arkaplanını kaldırır
+            .padding(.top, 0)
     }
+    
+    @ViewBuilder
+    private func emptyListView() -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "calendar.badge.exclamationmark")
+                .font(.system(size: 50))
+                .foregroundColor(.secondary)
+            Text("Randevu bulunamadı")
+                .font(.headline)
+                .foregroundColor(.secondary)
+            Text("Seçilen filtre için randevu bulunmamaktadır.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 50)
+    }
+    
 }
+
 
 struct AppointmentRowView: View {
     var appointment: Appointment
     var onStatusUpdate: (Appointment) -> Void
-
+    
     var body: some View {
         VStack(spacing: 12) {
             HStack {
@@ -156,7 +168,7 @@ struct AppointmentRowView: View {
                     StatusBadgeAdmin(status: status)
                 }
             }
-
+            
             if appointment.status == "pending" {
                 HStack(spacing: 12) {
                     Button("Reddet") {
@@ -166,7 +178,7 @@ struct AppointmentRowView: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
                     .background(RoundedRectangle(cornerRadius: 8).fill(Color.red.opacity(0.1)))
-
+                    
                     Button("Onayla") {
                         var updated = appointment
                         updated = Appointment(id: updated.id, customerName: updated.customerName, customerTel: updated.customerTel, salonName: updated.salonName, serviceName: updated.serviceName, appointmentDate: updated.appointmentDate, appointmentTime: updated.appointmentTime, status: "confirmed")
@@ -178,7 +190,7 @@ struct AppointmentRowView: View {
                     .background(RoundedRectangle(cornerRadius: 8).fill(Color.green))
                 }
             }
-
+            
             if appointment.status == "confirmed" {
                 Button("Tamamlandı Olarak İşaretle") {
                     var updated = appointment
@@ -194,7 +206,7 @@ struct AppointmentRowView: View {
         .padding()
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)).shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1))
     }
-
+    
     private func formatDate(_ dateString: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -229,7 +241,7 @@ struct FilterChipAdmin: View {
     let isSelected: Bool
     let count: Int
     let action: () -> Void
-
+    
     var body: some View {
         Button(action: action) {
             HStack(spacing: 6) {
@@ -250,7 +262,7 @@ enum AppointmentStatusAdmin: String, CaseIterable {
     case pending = "pending"
     case confirmed = "confirmed"
     case completed = "completed"
-
+    
     var displayName: String {
         switch self {
         case .all: return "Tümü"
@@ -259,7 +271,7 @@ enum AppointmentStatusAdmin: String, CaseIterable {
         case .completed: return "Tamamlanan"
         }
     }
-
+    
     var color: Color {
         switch self {
         case .all: return .blue
@@ -277,13 +289,12 @@ func isTodayAppointment(_ dateString: String) -> Bool {
     return Calendar.current.isDateInToday(appointmentDate)
 }
 
-
 struct StatsCard: View {
     let title: String
     let count: Int
     let icon: String
     let color: Color
-
+    
     var body: some View {
         HStack {
             Image(systemName: icon)
@@ -292,7 +303,7 @@ struct StatsCard: View {
                 .padding()
                 .background(color)
                 .clipShape(Circle())
-
+            
             VStack(alignment: .leading) {
                 Text(title)
                     .font(.headline)
@@ -302,7 +313,7 @@ struct StatsCard: View {
                     .bold()
                     .foregroundColor(.primary)
             }
-
+            
             Spacer()
         }
         .padding()
@@ -311,8 +322,6 @@ struct StatsCard: View {
         .shadow(radius: 2)
     }
 }
-
-
 
 #Preview {
     AdminHomeScreen()

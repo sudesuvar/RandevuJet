@@ -14,91 +14,95 @@ struct HairdresserDetailsScreen: View {
     @State private var selectedTab = 0
     @State private var selectedService: String? = nil
     @State private var showBookingSheet = false
+    @State private var loadedServices: [Service] = []
+    
     let hairdresser: HairDresser
+    private let repository = HairdresserRepository()
     
     var body: some View {
         VStack {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 16) {
-                    // Görsel ve Bilgiler Yanyana
-                    HStack(alignment: .top, spacing: 16) {
-                        if let urlString = hairdresser.photo,
-                           let url = URL(string: urlString) {
-                            KFImage(url)
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 120, height: 120)
-                                .background(
-                                    LinearGradient(
-                                        colors: [.purple.opacity(0.3), .pink.opacity(0.3)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .cornerRadius(12)
-                                .clipped()
-                            
-                        }else {
-                            Color.gray.opacity(0.3)
-                                .frame(width: 100, height: 100)
-                                .cornerRadius(10)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(hairdresser.salonName)
-                                .font(.title2)
-                                .fontWeight(.bold)
-                            
-                            HStack {
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                Text("4.8")
-                                    .fontWeight(.medium)
-                                Text("(247 değerlendirme)")
-                                    .foregroundColor(.secondary)
-                                    .font(.caption)
-                            }
-                            NavigationLink(destination: MapView(address: hairdresser.address ?? "TeknoPark, Kocaeli")) {
-                                HStack {
-                                    Image(systemName: "location.fill")
-                                        .foregroundColor(.blue)
-                                    Text(hairdresser.address ?? "Adres Bilgisi Yok")
-                                        .font(.subheadline)
-                                }
-                                
-                            }
-                            
-                            
-                            if let workingHours = hairdresser.workingHours {
-                                HStack() {
-                                    ForEach(workingHours, id: \.self) { hour in
-                                        HStack {
-                                            Image(systemName: "clock.fill")
-                                                .foregroundColor(.green)
-                                            Text(hour)
-                                                .font(.subheadline)
-                                        }
-                                    }
-                                }
-                            } else {
-                                Text("Çalışma saatleri mevcut değil.")
-                            }
-
-
-                            
-
-                            
-                            HStack {
-                                Image(systemName: "phone.fill")
-                                    .foregroundColor(.orange)
-                                Text(hairdresser.phone ?? "Telefon Numarası Yok")
-                                    .font(.subheadline)
-                            }
-                        }
-                        Spacer()
-                    }
-                    .padding(.horizontal)
                     
+                    // ... [Profil bilgileri aynen kalabilir]
+                    HStack(alignment: .top, spacing: 16) {
+                                     if let urlString = hairdresser.photo,
+                                        let url = URL(string: urlString) {
+                                         KFImage(url)
+                                             .resizable()
+                                             .aspectRatio(contentMode: .fill)
+                                             .frame(width: 120, height: 120)
+                                             .background(
+                                                 LinearGradient(
+                                                     colors: [.purple.opacity(0.3), .pink.opacity(0.3)],
+                                                     startPoint: .topLeading,
+                                                     endPoint: .bottomTrailing
+                                                 )
+                                             )
+                                             .cornerRadius(12)
+                                             .clipped()
+                                         
+                                     }else {
+                                         Color.gray.opacity(0.3)
+                                             .frame(width: 100, height: 100)
+                                             .cornerRadius(10)
+                                     }
+                                     
+                                     VStack(alignment: .leading, spacing: 8) {
+                                         Text(hairdresser.salonName)
+                                             .font(.title2)
+                                             .fontWeight(.bold)
+                                         
+                                         HStack {
+                                             Image(systemName: "star.fill")
+                                                 .foregroundColor(.yellow)
+                                             Text("4.8")
+                                                 .fontWeight(.medium)
+                                             Text("(247 değerlendirme)")
+                                                 .foregroundColor(.secondary)
+                                                 .font(.caption)
+                                         }
+                                         NavigationLink(destination: MapView(address: hairdresser.address ?? "TeknoPark, Kocaeli")) {
+                                             HStack {
+                                                 Image(systemName: "location.fill")
+                                                     .foregroundColor(.blue)
+                                                 Text(hairdresser.address ?? "Adres Bilgisi Yok")
+                                                     .font(.subheadline)
+                                             }
+                                             
+                                         }
+                                         
+                                         
+                                         if let workingHours = hairdresser.workingHours {
+                                             HStack() {
+                                                 ForEach(workingHours, id: \.self) { hour in
+                                                     HStack {
+                                                         Image(systemName: "clock.fill")
+                                                             .foregroundColor(.green)
+                                                         Text(hour)
+                                                             .font(.subheadline)
+                                                     }
+                                                 }
+                                             }
+                                         } else {
+                                             Text("Çalışma saatleri mevcut değil.")
+                                         }
+
+
+                                         
+
+                                         
+                                         HStack {
+                                             Image(systemName: "phone.fill")
+                                                 .foregroundColor(.orange)
+                                             Text(hairdresser.phone ?? "Telefon Numarası Yok")
+                                                 .font(.subheadline)
+                                         }
+                                     }
+                                     Spacer()
+                                 }
+                                 .padding(.horizontal)
+
                     // Sekme Seçimi
                     HStack {
                         Button(action: { selectedTab = 0 }) {
@@ -126,17 +130,14 @@ struct HairdresserDetailsScreen: View {
                     if selectedTab == 0 {
                         ServicesTabView(
                             selectedServiceId: $selectedService,
-                            services: hairdresser.services ?? []
+                            services: loadedServices
                         )
-
                     } else {
                         ReviewsTabView()
                     }
-                    
-                    Spacer()
                 }
             }
-            
+
             // Randevu Butonu
             Button(action: {
                 if selectedService != nil {
@@ -154,16 +155,34 @@ struct HairdresserDetailsScreen: View {
             .disabled(selectedService == nil)
             .padding(.bottom)
         }
+        .onAppear {
+            Task {
+                await loadServices()
+            }
+        }
         .sheet(isPresented: $showBookingSheet) {
             if let selectedId = selectedService,
-               let service = hairdresser.services?.first(where: { $0.id == selectedId }) {
+               let service = loadedServices.first(where: { $0.id == selectedId }) {
                 BookingSheet(hairdresser: hairdresser, selectedService: service)
                     .environmentObject(HairdresserViewModel())
-                  
             }
         }
     }
+
+    // 🔁 Firestore'dan servisleri getir
+    private func loadServices() async {
+        guard let serviceIds = hairdresser.services else { return }
+        do {
+            let services = try await repository.fetchServicesByIds(serviceIds)
+            DispatchQueue.main.async {
+                self.loadedServices = services
+            }
+        } catch {
+            print("❌ Servisler yüklenemedi: \(error.localizedDescription)")
+        }
+    }
 }
+
 
 
 

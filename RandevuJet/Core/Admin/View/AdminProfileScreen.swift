@@ -9,8 +9,11 @@ import Foundation
 import SwiftUI
 
 struct AdminProfileScreen: View {
+    @EnvironmentObject var adminViewModel: AdminViewModel
+    @EnvironmentObject var authViewModel: AuthViewModel
     @State private var isEditingProfile = false
     @State private var showingComments = false
+    @State private var showingLogoutAlert = false
     @State private var profileName = "Salon Güzellik"
     @State private var profileDescription = "25 yıllık deneyimle, saç kesimi, boyama ve bakım hizmetleri sunuyoruz."
     @State private var profilePhone = "+90 555 123 4567"
@@ -29,20 +32,38 @@ struct AdminProfileScreen: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(spacing: 20) {
-                    // Profil Header
-                    profileHeaderView
-                    
-                    // İstatistikler
-                    statsView
-                    
-                    // Ana Butonlar
-                    actionButtonsView
-                    
-                    // Son Yorumlar Önizleme
-                    recentReviewsPreview
+                if let user = adminViewModel.hairdressercurrentUser {
+                    VStack(spacing: 20) {
+                        // Profil Header
+                        profileHeaderView(user: user)
+                        
+                        // İstatistikler
+                        statsView
+                        
+                        // Ana Butonlar
+                        actionButtonsView
+                        
+                        // Son Yorumlar Önizleme
+                        recentReviewsPreview
+                        
+                        // Logout Button
+                        logoutButtonView
+                    }
+                    .padding()
+                }else if let error = adminViewModel.errorMessage {
+                    Text("Hata: \(error)")
+                        .foregroundColor(.red)
+                        .padding()
+                } else {
+                    ProgressView()
+                        .onAppear {
+                            Task {
+                                try await adminViewModel.loadInitialData()
+                            }
+                        }
                 }
-                .padding()
+                
+                
             }
         }
         .sheet(isPresented: $isEditingProfile) {
@@ -57,41 +78,68 @@ struct AdminProfileScreen: View {
         .sheet(isPresented: $showingComments) {
             AllReviewsView(reviews: reviews, isPresented: $showingComments)
         }
+        .alert("Çıkış Yap", isPresented: $showingLogoutAlert) {
+            Button("İptal", role: .cancel) { }
+            Button("Çıkış Yap", role: .destructive) {
+                Task {
+                    await try authViewModel.signOut()
+                }
+            }
+        } message: {
+            Text("Hesabınızdan çıkış yapmak istediğinizden emin misiniz?")
+        }
+        .navigationBarHidden(true)
     }
     
     // MARK: - Profile Header
-    private var profileHeaderView: some View {
+    private func profileHeaderView(user: HairDresser) -> some View {
         VStack(spacing: 15) {
-            // Profil Resmi
-            Image(systemName: profileImage)
-                .font(.system(size: 80))
-                .foregroundColor(.blue)
-                .background(
-                    Circle()
-                        .fill(Color.blue.opacity(0.1))
-                        .frame(width: 120, height: 120)
-                )
+            if let photoURL = user.photo, let url = URL(string: photoURL) {
+                           AsyncImage(url: url) { phase in
+                               switch phase {
+                               case .empty:
+                                   ProgressView()
+                                       .frame(width: 120, height: 120)
+                               case .success(let image):
+                                   image
+                                       .resizable()
+                                       .scaledToFill()
+                                       .frame(width: 120, height: 120)
+                                       .clipShape(Circle())
+                               case .failure(_):
+                                   Image(systemName: "person.circle.fill")
+                                       .font(.system(size: 120))
+                                       .foregroundColor(.blue)
+                               @unknown default:
+                                   EmptyView()
+                               }
+                           }
+                       } else {
+                           Image(systemName: "person.circle.fill")
+                               .font(.system(size: 120))
+                               .foregroundColor(.blue)
+                       }
             
             // Salon Bilgileri
             VStack(spacing: 8) {
-                Text(profileName)
+                Text(user.salonName ?? "Salon İsmi Yok")
                     .font(.title2)
                     .fontWeight(.bold)
-                
-                Text(profileAddress)
+
+                Text(user.address ?? "Adres yok")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
-                
+
                 HStack {
                     Image(systemName: "phone.fill")
-                    Text(profilePhone)
+                    Text(user.phone ?? "Telefon yok")
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)
             }
             
             // Açıklama
-            Text(profileDescription)
+            Text(user.text ?? "Açıklama yok...")
                 .font(.body)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
@@ -158,6 +206,27 @@ struct AdminProfileScreen: View {
                 )
                 .foregroundColor(.orange)
             }
+        }
+    }
+    
+    // MARK: - Logout Button
+    private var logoutButtonView: some View {
+        Button(action: {
+            showingLogoutAlert = true
+        }) {
+            HStack {
+                Image(systemName: "arrow.right.square.fill")
+                    .font(.title2)
+                Text("Çıkış Yap")
+                    .fontWeight(.medium)
+                Spacer()
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.red.opacity(0.1))
+            )
+            .foregroundColor(.red)
         }
     }
     
@@ -267,13 +336,15 @@ struct ReviewRowView: View {
     }
 }
 
-// MARK: - Profile Edit View
 struct ProfileEditView: View {
     @Binding var profileName: String
     @Binding var profileDescription: String
     @Binding var profilePhone: String
     @Binding var profileAddress: String
     @Binding var isPresented: Bool
+    
+    // Örnek olarak view model ekledim
+    @EnvironmentObject var adminViewModel: AdminViewModel
     
     var body: some View {
         NavigationView {
@@ -306,18 +377,28 @@ struct ProfileEditView: View {
                         Spacer()
                     }
                     .padding(.vertical, 8)
+                    // Buraya resim seçme işlemi de eklenebilir
                 }
             }
             .navigationTitle("Profili Düzenle")
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarItems(
-                leading: Button("İptal") { isPresented = false },
-                trailing: Button("Kaydet") { isPresented = false }
-                    .fontWeight(.semibold)
+                leading: Button("İptal") {
+                    isPresented = false
+                },
+                trailing: Button("Kaydet") {
+                    // Kaydetme işlemi burada yapılabilir
+                    Task {
+                        await adminViewModel.updateHairdresserDataProfile(address: profileAddress, phone: profilePhone, text: profileDescription )
+                        isPresented = false
+                    }
+                }
+                .fontWeight(.semibold)
             )
         }
     }
 }
+
 
 // MARK: - All Reviews View
 struct AllReviewsView: View {
