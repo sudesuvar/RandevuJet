@@ -14,7 +14,7 @@ struct AppoinmentDetailScreen: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var AppoinmentViewModel: AppoinmentViewModel
     let appoinment: Appointment
-    
+    @State private var commentText = ""
     @State private var showCancelAlert = false
     @State private var showEditSheet = false
     
@@ -232,6 +232,45 @@ struct AppoinmentDetailScreen: View {
                         }
                     }
                     .padding(.top, 10)
+                    
+                    // Yorum Yapma Alanı (Sadece tamamlanmışsa)
+                    if appoinment.status.lowercased() == "tamamlandı" || appoinment.status.lowercased() == "completed" || appoinment.status.lowercased() == "bitti" {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Yorumunuzu Yazın")
+                                .font(.headline)
+                            
+                            TextEditor(text: $commentText)
+                                .frame(height: 100)
+                                .padding(8)
+                                .background(Color(.systemGray6))
+                                .cornerRadius(8)
+                            
+                            Button(action: {
+                                Task {
+                                    await AppoinmentViewModel.submitReview(appointmentId: appoinment.id ?? "")
+                                    commentText = ""
+                                }
+                            }) {
+                                Text("Gönder")
+                                    .fontWeight(.medium)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(8)
+                            }
+                            .disabled(commentText.trimmingCharacters(in: .whitespaces).isEmpty)
+
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(colorScheme == .dark ? Color(.systemGray6) : Color.white)
+                                .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 2)
+                        )
+                        .padding(.top, 20)
+                    }
+
                     
                 }
                 .padding(.horizontal, 20)

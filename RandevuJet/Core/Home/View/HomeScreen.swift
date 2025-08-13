@@ -34,10 +34,16 @@ struct HomeScreen: View {
             }
             .task {
                 isLoading = true
+                await MainActor.run {
+                    isLoading = true
+                }
                 await hairdresserViewModel.fetchHairdressers()
                 await hairdresserViewModel.fetchAppointments()
-                isLoading = false
+                await MainActor.run {
+                    isLoading = false
+                }
             }
+
             .padding(.top)
         }
         .background(Color(.systemGroupedBackground))

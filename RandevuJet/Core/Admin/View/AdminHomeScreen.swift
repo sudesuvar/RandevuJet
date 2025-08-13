@@ -10,18 +10,11 @@ import SwiftUI
 
 struct AdminHomeScreen: View {
     @EnvironmentObject var adminViewModel: AdminViewModel
+    @EnvironmentObject var authViewModel: AuthViewModel
     @State private var selectedFilter: AppointmentStatusAdmin = .all
     @State private var searchText = ""
     
-    // Örnek appointments (istersen adminViewModel.appointments kullanabilirsin)
-    @State private var appointments = [
-        Appointment(id: "1", customerName: "Ayşe Yılmaz", customerTel: "+90 555 123 4567", salonName: "Salon Güzellik", serviceName: "Saç Kesimi + Fön", appointmentDate: "2025-07-31", appointmentTime: "10:00", status: "pending"),
-        Appointment(id: "2", customerName: "Mehmet Demir", customerTel: "+90 555 987 6543", salonName: "Salon Güzellik", serviceName: "Saç Boyama", appointmentDate: "2025-07-31", appointmentTime: "14:30", status: "confirmed"),
-        Appointment(id: "3", customerName: "Fatma Özkan", customerTel: "+90 555 456 7890", salonName: "Salon Güzellik", serviceName: "Keratin Bakım", appointmentDate: "2025-08-01", appointmentTime: "11:00", status: "confirmed"),
-        Appointment(id: "4", customerName: "Ali Kaya", customerTel: "+90 555 321 6547", salonName: "Salon Güzellik", serviceName: "Saç Kesimi", appointmentDate: "2025-07-30", appointmentTime: "16:00", status: "completed"),
-        Appointment(id: "5", customerName: "Zeynep Ak", customerTel: "+90 555 789 1234", salonName: "Salon Güzellik", serviceName: "Ombre Boyama", appointmentDate: "2025-07-29", appointmentTime: "13:00", status: "completed"),
-        Appointment(id: "6", customerName: "Can Öztürk", customerTel: "+90 555 654 3210", salonName: "Salon Güzellik", serviceName: "Saç + Sakal", appointmentDate: "2025-07-31", appointmentTime: "18:00", status: "pending")
-    ]
+   
     
     // Filtrelenmiş randevular
     var filteredAppointments: [Appointment] {
@@ -101,27 +94,35 @@ struct AdminHomeScreen: View {
     }
     
     @ViewBuilder
-    private func appointmentListView() -> some View {
-        List {
-            if filteredAppointments.isEmpty {
-                emptyListView()
-                    .listRowSeparator(.hidden)
-            } else {
-                ForEach(filteredAppointments) { appointment in
-                    AppointmentRowView(appointment: appointment) { updatedAppointment in
-                        if let index = adminViewModel.appointments.firstIndex(where: { $0.id == updatedAppointment.id }) {
-                            adminViewModel.appointments[index] = updatedAppointment
+        private func appointmentListView() -> some View {
+            List {
+                if filteredAppointments.isEmpty {
+                    emptyListView()
+                        .listRowSeparator(.hidden)
+                } else {
+                    ForEach(filteredAppointments) { appointment in
+                        ZStack {
+                            NavigationLink(destination: AdminAppointmentScreen(appointment: appointment).environmentObject(AdminViewModel())
+                                .environmentObject(AuthViewModel())) {
+                                EmptyView()
+                            }
+                            .opacity(0)
+                            
+                            AppointmentRowView(appointment: appointment) { updatedAppointment in
+                                if let index = adminViewModel.appointments.firstIndex(where: { $0.id == updatedAppointment.id }) {
+                                    adminViewModel.appointments[index] = updatedAppointment
+                                }
+                            }
                         }
+                        .listRowSeparator(.hidden)
+                        .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                     }
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                 }
             }
+            .listStyle(PlainListStyle())
+                .scrollContentBackground(.hidden)
+                .padding(.top, 0)
         }
-        .listStyle(PlainListStyle())
-            .scrollContentBackground(.hidden) // iOS 16+ ile list arkaplanını kaldırır
-            .padding(.top, 0)
-    }
     
     @ViewBuilder
     private func emptyListView() -> some View {
@@ -152,59 +153,40 @@ struct AppointmentRowView: View {
         VStack(spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(appointment.customerName).font(.headline).fontWeight(.semibold)
-                    Text(appointment.serviceName).font(.subheadline).foregroundColor(.secondary)
+                    Text(appointment.customerName)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.primary)
+                    Text(appointment.serviceName)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                     HStack(spacing: 12) {
                         Label(formatDate(appointment.appointmentDate), systemImage: "calendar")
                         Label(appointment.appointmentTime, systemImage: "clock")
-                    }.font(.caption).foregroundColor(.secondary)
+                    }
+                    .font(.caption)
+                    .foregroundColor(.secondary)
                     HStack {
                         Image(systemName: "phone")
                         Text(appointment.customerTel)
-                    }.font(.caption2).foregroundColor(.secondary)
+                    }
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
                 }
                 Spacer()
-                if let status = AppointmentStatusAdmin(rawValue: appointment.status) {
-                    StatusBadgeAdmin(status: status)
-                }
-            }
-            
-            if appointment.status == "pending" {
-                HStack(spacing: 12) {
-                    Button("Reddet") {
-                        // İşlevsel olarak güncelleme yapılabilir
+                VStack(alignment: .trailing, spacing: 8) {
+                    if let status = AppointmentStatusAdmin(rawValue: appointment.status) {
+                        StatusBadgeAdmin(status: status)
                     }
-                    .foregroundColor(.red)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.red.opacity(0.1)))
-                    
-                    Button("Onayla") {
-                        var updated = appointment
-                        updated = Appointment(id: updated.id, customerName: updated.customerName, customerTel: updated.customerTel, salonName: updated.salonName, serviceName: updated.serviceName, appointmentDate: updated.appointmentDate, appointmentTime: updated.appointmentTime, status: "confirmed")
-                        onStatusUpdate(updated)
-                    }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.green))
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
-            }
-            
-            if appointment.status == "confirmed" {
-                Button("Tamamlandı Olarak İşaretle") {
-                    var updated = appointment
-                    updated = Appointment(id: updated.id, customerName: updated.customerName, customerTel: updated.customerTel, salonName: updated.salonName, serviceName: updated.serviceName, appointmentDate: updated.appointmentDate, appointmentTime: updated.appointmentTime, status: "completed")
-                    onStatusUpdate(updated)
-                }
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.purple))
             }
         }
         .padding()
         .background(RoundedRectangle(cornerRadius: 12).fill(Color(.systemBackground)).shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1))
+        .contentShape(Rectangle()) // NavigationLink için tıklanabilir alan
     }
     
     private func formatDate(_ dateString: String) -> String {

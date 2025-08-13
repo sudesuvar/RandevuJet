@@ -9,8 +9,9 @@ import Foundation
 import Firebase
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseFunctions
 
-
+@MainActor
 class AuthViewModel : ObservableObject{
     @Published var userSession: FirebaseAuth.User?
     @Published var currentUser: User?
@@ -269,6 +270,25 @@ class AuthViewModel : ObservableObject{
         print("[fetchUserOrHairdresserData] Kullanıcı veya kuaför bilgisi bulunamadı.")
         throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı bilgileri alınamadı."])
     }
+    
+    func checkIfEmailExists(_ email: String, completion: @escaping (Bool) -> Void) {
+        let function = Functions.functions().httpsCallable("checkEmailExists")
+        function.call(["email": email]) { result, error in
+            if let error = error {
+                print("Function error: \(error)")
+                completion(false)
+                return
+            }
+
+            if let data = result?.data as? [String: Any],
+               let exists = data["exists"] as? Bool {
+                completion(exists)
+            } else {
+                completion(false)
+            }
+        }
+    }
+
 
 
 

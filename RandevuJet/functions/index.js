@@ -92,3 +92,23 @@ functions.https.onCall(async (data, context) => {
   }
 });
 
+exports.checkEmailExists = functions.https.onCall(async (data, context) => {
+  const email = data.email;
+
+  if (!email) {
+    throw new functions.https.HttpsError("invalid-argument", "Email gerekli.");
+  }
+
+  try {
+    const userRecord = await admin.auth().getUserByEmail(email);
+    console.log("Kullanıcı e-posta:", userRecord.email);
+    return {exists: true};
+  } catch (error) {
+    if (error.code === "auth/user-not-found") {
+      return {exists: false};
+    }
+    throw new functions.https.HttpsError("internal", "Bilinmeyen hata.");
+  }
+});
+
+

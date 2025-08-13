@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 class HairdresserViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var hairdressers: [HairDresser] = []

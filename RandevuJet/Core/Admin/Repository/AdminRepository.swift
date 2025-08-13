@@ -12,7 +12,7 @@ import FirebaseAuth
 
 class AdminRepository {
     private let db = Firestore.firestore()
-
+    
     // Tüm servisleri getir
     func getAllServices() async throws -> [Service] {
         let snapshot = try await db.collection("services").getDocuments()
@@ -24,7 +24,7 @@ class AdminRepository {
         }
         return services
     }
-
+    
     // ID'lere göre servisleri getir (UI'de detay lazımsa)
     func fetchServicesByIds(_ ids: [String]) async throws -> [Service] {
         var fetchedServices: [Service] = []
@@ -37,17 +37,17 @@ class AdminRepository {
         }
         return fetchedServices
     }
-
+    
     func getHairdresserData() async throws -> HairDresser {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "AuthError", code: 401, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı giriş yapmamış."])
         }
-
+        
         let snapshot = try await db.collection("hairdressers").document(uid).getDocument()
         guard let data = snapshot.data() else {
             throw NSError(domain: "DataError", code: 404, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı verisi bulunamadı."])
         }
-
+        
         let id = snapshot.documentID
         let salonName = data["salonName"] as? String ?? ""
         let email = data["email"] as? String ?? ""
@@ -60,9 +60,9 @@ class AdminRepository {
         let status = data["status"] as? String
         let workingHours = data["workingHours"] as? [String]
         let services = data["services"] as? [String] // sadece ID listesi
-
+        
         print("Hairdresser data fetched successfully.")
-
+        
         return HairDresser(
             id: id,
             salonName: salonName,
@@ -78,8 +78,8 @@ class AdminRepository {
             workingHours: workingHours
         )
     }
-
-
+    
+    
     func updateHairdresserData(
         address: String?,
         phone: String?,
@@ -94,9 +94,9 @@ class AdminRepository {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "AuthError", code: 401, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı giriş yapmamış."])
         }
-
+        
         var data: [String: Any] = [:]
-
+        
         if let address = address { data["address"] = address }
         if let phone = phone { data["phone"] = phone }
         if let photo = photo { data["photo"] = photo }
@@ -105,7 +105,7 @@ class AdminRepository {
         if let services = services {
             data["services"] = services // sadece ID'ler
         }
-
+        
         var workingHours: [String] = []
         if let start = workingStartTime { workingHours.append(start) }
         if let end = workingEndTime { workingHours.append(end) }
@@ -113,10 +113,10 @@ class AdminRepository {
             data["workingHours"] = workingHours
         }
         if let status = status { data["status"] = status }
-
+        
         try await db.collection("hairdressers").document(uid).setData(data, merge: true)
     }
-
+    
     
     func updateHairdresserProfile(
         address: String?,
@@ -126,24 +126,24 @@ class AdminRepository {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw NSError(domain: "AuthError", code: 401, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı giriş yapmamış."])
         }
-
+        
         var data: [String: Any] = [:]
         if let address = address { data["address"] = address }
         if let phone = phone { data["phone"] = phone }
         if let text = text { data["text"] = text }
-
+        
         try await db.collection("hairdressers").document(uid).setData(data, merge: true)
     }
-
-
+    
+    
     func getAdminAllAppointments(currentUser: HairDresser) async throws -> [Appointment] {
         let salonName = currentUser.salonName
         print(salonName)
-
+        
         let snapshot = try await db.collection("appointments")
             .whereField("salonName", isEqualTo: salonName)
             .getDocuments()
-
+        
         let appointments: [Appointment] = snapshot.documents.compactMap { doc in
             let data = doc.data()
             guard
@@ -158,10 +158,63 @@ class AdminRepository {
             
             return Appointment(id: doc.documentID, customerName: customerName, customerTel: customerTel, salonName: salonName, serviceName: serviceName, appointmentDate: appointmentDate, appointmentTime: appointmentTime, status: status)
         }
-
-
+        
+        
         print("appointments: \(appointments)")
         return appointments
     }
+    
+    /// Randevu durumunu güncelle
+    func updateAppointmentStatus(appointmentId: String, newStatus: String) async throws {
+        try await db.collection("appointments")
+            .document(appointmentId)
+            .updateData([
+                "status": newStatus,
+            ])
+    }
+    
+    /// Randevuyu sil
+    func deleteAppointment(appointmentId: String) async throws {
+        try await db.collection("appointments")
+            .document(appointmentId)
+            .delete()
+    }
+    
+    
 
+    // Customer List
+    func addCustomer(hairdresserId: String, customer: Customer, completion: @escaping (Error?) -> Void) {
+        do {
+            _ = try db.collection("hairdressers")
+                .document(hairdresserId)
+                .collection("customers")
+                .addDocument(from: customer, completion: completion)
+        } catch {
+            completion(error)
+        }
+    }
+    
+    func getCustomers(hairdresserId: String, completion: @escaping ([Customer]?, Error?) -> Void) {
+        db.collection("hairdressers")
+            .document(hairdresserId)
+            .collection("customers")
+            .order(by: "createdAt", descending: true)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    completion(nil, error)
+                    return
+                }
+                let customers = snapshot?.documents.compactMap { doc in
+                    try? doc.data(as: Customer.self)
+                }
+                completion(customers, nil)
+            }
+    }
+    
+    
+    
+    
+    
+    
+    
 }

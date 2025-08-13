@@ -23,6 +23,7 @@ class AdminViewModel: ObservableObject {
     @Published var hairdressercurrentUser: HairDresser?
     @Published var services: [Service] = []
     @Published var appointments: [Appointment] = []
+    @Published var customers: [Customer] = []
 
     
     private let repository = AdminRepository()
@@ -151,6 +152,60 @@ class AdminViewModel: ObservableObject {
             throw NSError(domain: "AuthError", code: 401, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı bilgileri alınamadı."])
         }
     }
+    
+    func updateAppointmentStatus(appointmentId: String, newStatus: String) async {
+            isLoading = true
+            errorMessage = nil
+            do {
+                try await repository.updateAppointmentStatus(appointmentId: appointmentId, newStatus: newStatus)
+            } catch {
+                errorMessage = "Durum güncellenemedi: \(error.localizedDescription)"
+            }
+            isLoading = false
+        }
+        
+        /// Randevuyu sil
+        func deleteAppointment(appointmentId: String) async {
+            isLoading = true
+            errorMessage = nil
+            do {
+                try await repository.deleteAppointment(appointmentId: appointmentId)
+            } catch {
+                errorMessage = "Randevu silinemedi: \(error.localizedDescription)"
+            }
+            isLoading = false
+        }
+    
+    
+    // customer list
+    func addCustomer(hairdresserId: String, fullName: String, phone: String, notes: String? = nil) {
+            let newCustomer = Customer(
+                fullName: fullName,
+                phone: phone,
+                notes: notes,
+                createdAt: Date()
+            )
+            
+            repository.addCustomer(hairdresserId: hairdresserId, customer: newCustomer) { error in
+                if let error = error {
+                    print("Müşteri eklenemedi: \(error.localizedDescription)")
+                } else {
+                    print("Müşteri eklendi.")
+                    self.fetchCustomers(hairdresserId: hairdresserId)
+                }
+            }
+        }
+        
+        func fetchCustomers(hairdresserId: String) {
+            repository.getCustomers(hairdresserId: hairdresserId) { customers, error in
+                if let error = error {
+                    print("Müşteriler alınamadı: \(error.localizedDescription)")
+                    return
+                }
+                self.customers = customers ?? []
+            }
+        }
+        
     
 
 }

@@ -50,6 +50,27 @@ class AppoinmentsRepository: ObservableObject {
             throw error
         }
     }
+    
+    
+    /*func addRewiew(review: Review) async throws {
+        let reviewRef = db.collection("reviews").document()
+        
+        do {
+            try await reviewRef.setData(from: review)
+            print("Yorum başarıyla eklendi.")
+        } catch {
+            print("Yorum ekleme hatası: \(error.localizedDescription)")
+            throw error
+        }
+    }*/
+    
+    func submitReview(appointmentId: String, review: String) async throws {
+            try await db.collection("appointments")
+                .document(appointmentId)
+                .updateData([
+                    "review": review
+                ])
+        }
 
 
     

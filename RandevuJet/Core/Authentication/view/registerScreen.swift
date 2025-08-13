@@ -81,7 +81,20 @@ struct registerScreen: View {
             Button(action: {
                 handleRegister()
                 Task {
-                    try await authViewModel.createUser(withEmail: email, password: password, fullName: nameSurname, role: "customer")
+                    authViewModel.checkIfEmailExists(email) { exists in
+                        if exists {
+                            // Kullanıcıya uyarı ver
+                            print("Bu email zaten kayıtlı.")
+                            // Kullanıcıya alert göster
+                            showAlert = true
+                            alertMessage = "Bu email adresiyle kayıtlı bir kullanıcı zaten var."
+                        } else {
+                            Task {
+                                try await authViewModel.createUser(withEmail: email, password: password, fullName: nameSurname, role: "customer")
+                            }
+                        }
+                    }
+                    
                 }
             }) {
                 Text("Kayıt Ol")
@@ -126,9 +139,9 @@ struct registerScreen: View {
                     .foregroundColor(.black)
                 
                 Button("Giriş Yap") {
-                            selectedUserType = .customer
-                            showLoginScreen = true
-                        }
+                    selectedUserType = .customer
+                    showLoginScreen = true
+                }
                 .fontWeight(.bold)
                 .foregroundColor(.yellow)
             }
@@ -138,11 +151,11 @@ struct registerScreen: View {
         .background(Color.white)
         .ignoresSafeArea()
         .fullScreenCover(isPresented: $showLoginScreen) {
-                   loginScreen(userType: $selectedUserType)
-                       .environmentObject(authViewModel)
-                       .environmentObject(themeViewModel)
-                       .environmentObject(hairdresserViewModel)
-               }
+            loginScreen(userType: $selectedUserType)
+                .environmentObject(authViewModel)
+                .environmentObject(themeViewModel)
+                .environmentObject(hairdresserViewModel)
+        }
         
         .alert("Uyarı", isPresented: $showAlert) {
             Button("Tamam", role: .cancel) { }
