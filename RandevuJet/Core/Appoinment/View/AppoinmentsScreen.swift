@@ -12,7 +12,7 @@ import Kingfisher
 
 struct AppoinmentsScreen: View {
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
-    @EnvironmentObject var AppoinmentViewModel: AppoinmentViewModel
+    @EnvironmentObject var appoinmentViewModel: AppoinmentViewModel
     @State private var searchText: String = ""
     @State private var isSearchActive: Bool = false
     @State private var selectedFilter: String = "Tümü"
@@ -86,6 +86,7 @@ struct AppoinmentsScreen: View {
                             ForEach(filteredAppointments) { appoinment in
                                 NavigationLink(destination: AppoinmentDetailScreen(appoinment: appoinment)
                                     .environmentObject(hairdresserViewModel)
+                                    .environmentObject(appoinmentViewModel)
                                 ) {
                                     AppoinmentListCard(appoinment: appoinment)
                                 }

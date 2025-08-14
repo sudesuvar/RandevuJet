@@ -38,25 +38,28 @@ class AppoinmentViewModel: ObservableObject {
         isUpdating = false
     }
     
-    func submitReview(appointmentId: String) async {
-            guard !reviewText.trimmingCharacters(in: .whitespaces).isEmpty else {
-                reviewError = "Yorum boş olamaz."
-                return
-            }
-            
-            isSubmittingReview = true
-            reviewError = nil
-            
-            do {
-                try await repository.submitReview(appointmentId: appointmentId, review: reviewText)
-                reviewText = ""
-            } catch {
-                reviewError = error.localizedDescription
-            }
-            
-            isSubmittingReview = false
+    func submitReview(appointmentId: String, review: String) async {
+        guard !review.trimmingCharacters(in: .whitespaces).isEmpty else {
+            reviewError = "Yorum boş olamaz."
+            print("⚠️ Yorum boş. İşlem iptal edildi.")
+            return
         }
-    
+        
+        isSubmittingReview = true
+        reviewError = nil
+        
+        do {
+            try await repository.submitReview(appointmentId: appointmentId, review: review)
+            print("✅ Yorum başarıyla gönderildi: \(review)")
+        } catch {
+            print("❌ Yorum gönderilirken hata oluştu:", error.localizedDescription)
+            reviewError = error.localizedDescription
+        }
+        
+        isSubmittingReview = false
+    }
+
+
     
 }
 

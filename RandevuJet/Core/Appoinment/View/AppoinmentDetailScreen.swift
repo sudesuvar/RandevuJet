@@ -247,7 +247,7 @@ struct AppoinmentDetailScreen: View {
                             
                             Button(action: {
                                 Task {
-                                    await AppoinmentViewModel.submitReview(appointmentId: appoinment.id ?? "")
+                                    await AppoinmentViewModel.submitReview(appointmentId: appoinment.id ?? "", review: commentText )
                                     commentText = ""
                                 }
                             }) {

@@ -12,6 +12,7 @@ struct HomeScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
+    @EnvironmentObject var appoinmentViewModel: AppoinmentViewModel
     @State private var showAll = false
     @State private var showAllAppointments = false
     @State private var isLoading = false
@@ -58,6 +59,7 @@ struct HomeScreen: View {
                 .environmentObject(authViewModel)
                 .environmentObject(themeViewModel)
                 .environmentObject(hairdresserViewModel)
+                .environmentObject(appoinmentViewModel)
         }
         .navigationBarHidden(true)
     }

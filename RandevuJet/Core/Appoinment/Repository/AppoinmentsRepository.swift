@@ -17,25 +17,6 @@ class AppoinmentsRepository: ObservableObject {
     @Published var userSession: FirebaseAuth.User?
     @Published var currentUser: User?
     
-
-    /*func getAllAppointments() async throws -> [Appointment] {
-        
-        guard let uid = Auth.auth().currentUser?.uid else { return [] }
-        
-        let snapshot = try await db.collection("appointments")
-            .whereField("customerUid", isEqualTo: uid)
-            .getDocuments()
-        
-        var appointments: [Appointment] = []
-        
-        for document in snapshot.documents {
-            if let appointment = try? document.data(as: Appointment.self) {
-                appointments.append(appointment)
-            }
-        }
-
-        return appointments
-    }*/
     func updateAppointment(appointmentId: String, newDate: String, newTime: String) async throws {
         let appointmentRef = db.collection("appointments").document(appointmentId)
 
@@ -64,13 +45,19 @@ class AppoinmentsRepository: ObservableObject {
         }
     }*/
     
-    func submitReview(appointmentId: String, review: String) async throws {
+    func submitReview(appointmentId: String, review: String) async {
+        do {
             try await db.collection("appointments")
                 .document(appointmentId)
                 .updateData([
                     "review": review
                 ])
+            print("Yorum başarıyla kaydedildi.")
+        } catch {
+            print("Yorum kaydedilirken hata oluştu: \(error.localizedDescription)")
         }
+    }
+
 
 
     
