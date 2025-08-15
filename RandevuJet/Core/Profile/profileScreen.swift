@@ -4,6 +4,7 @@ import SwiftUI
 struct profileScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
     @EnvironmentObject var themeViewModel: ThemeViewModel
+    @EnvironmentObject var languageViewModel: LanguageViewModel
     @Environment(\.colorScheme) var colorScheme
     @State private var isFeedbackSheetPresented = false
     @State private var feedbackText = ""
@@ -45,7 +46,7 @@ struct profileScreen: View {
                     HStack {
                         Image(systemName: themeViewModel.isDarkMode ? "moon.fill" : "sun.max.fill")
                             .foregroundColor(.gray)
-                        Text("Tema")
+                        Text("theme".localized(using: languageViewModel))
                             .font(.subheadline)
                         Spacer()
                         Toggle("", isOn: $themeViewModel.isDarkMode)
@@ -60,16 +61,27 @@ struct profileScreen: View {
                     HStack {
                         Text("🌐")
                             .font(.title2)
-                        Text("Uygulama Dili")
+                        Text(String(localized: "welcome"))
+                        Text("Dil")
                             .font(.subheadline)
                         Spacer()
-                        Toggle(isOn: .constant(false)) { }
-                            .toggleStyle(SwitchToggleStyle(tint: .black))
+                        Picker("", selection: $languageViewModel.selectedLanguage) {
+                            ForEach(Language.allCases) { lang in
+                                Text(lang.displayName).tag(lang)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
                     }
                     .padding()
                     .background(Color(.secondarySystemGroupedBackground))
                     .cornerRadius(16)
                     .padding(.horizontal)
+                    
+                    // Test için bir button
+                                Button("Test Değişiklik") {
+                                    print("Seçili Dil:", languageViewModel.selectedLanguage.rawValue)
+                                }
+
 
                     // VERSION
                     HStack {

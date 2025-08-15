@@ -13,15 +13,26 @@ public struct AdminCustomerListScreen: View {
     @State private var searchText = ""
     
     public var body: some View {
-        List(filteredCustomers) { customer in
-            VStack(alignment: .leading) {
-                Text(customer.fullName)
-                    .font(.headline)
-                Text(customer.phone)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+        List {
+            ForEach(filteredCustomers) { customer in
+                VStack(alignment: .leading) {
+                    Text(customer.fullName)
+                        .font(.headline)
+                    Text(customer.phone)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .padding(.vertical, 4)
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        Task {
+                            await deleteCustomer(customer)
+                        }
+                    } label: {
+                        Label("Sil", systemImage: "trash")
+                    }
+                }
             }
-            .padding(.vertical, 4)
         }
         .navigationTitle("Müşteri Listesi")
         .searchable(text: $searchText, prompt: "Müşteri ara")
@@ -46,6 +57,15 @@ public struct AdminCustomerListScreen: View {
             }
         }
     }
+    
+    private func deleteCustomer(_ customer: Customer) async {
+        guard let customerId = customer.id,
+              let hairdresserId = authViewModel.currentHairdresser?.id else { return }
+        
+        await adminViewModel.deleteCustomer(hairdresserId: hairdresserId, customerId: customerId)
+
+    }
+
 }
 
 #Preview {

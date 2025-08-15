@@ -82,7 +82,7 @@ struct AdminProfileScreen: View {
             )
         }
         .sheet(isPresented: $showingComments) {
-            AllReviewsView(reviews: reviews, isPresented: $showingComments)
+            AllReviewsView(reviews: adminViewModel.reviews, isPresented: $showingComments)
         }
         .preferredColorScheme(isDarkMode ? .dark : .light)
 
@@ -166,7 +166,7 @@ struct AdminProfileScreen: View {
     // MARK: - Stats View
     private var statsView: some View {
         HStack(spacing: 20) {
-            StatCard(title: "Toplam Yorum", value: "\(reviews.count)", icon: "message.fill", color: .blue)
+            StatCard(title: "Toplam Yorum", value: "\(adminViewModel.reviews.count)", icon: "message.fill", color: .blue)
             StatCard(title: "Ortalama Puan", value: String(format: "%.1f", averageRating), icon: "star.fill", color: .orange)
             StatCard(title: "Bu Ay", value: "\(adminViewModel.appointments.count)", icon: "calendar", color: .green)
         }
@@ -615,7 +615,7 @@ struct SearchBar: View {
 }
 
 // MARK: - All Reviews View
-struct AllReviewsView: View {
+/*struct AllReviewsView: View {
     let reviews: [Review]
     @Binding var isPresented: Bool
     
@@ -654,7 +654,52 @@ struct AllReviewsView: View {
             .navigationBarItems(trailing: Button("Kapat") { isPresented = false })
         }
     }
+}*/
+
+struct AllReviewsView: View {
+    let reviews: [String]   // string array
+    @Binding var isPresented: Bool
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 12) {
+                    ForEach(reviews, id: \.self) { review in
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text(review)
+                                    .font(.body)
+                                    .foregroundColor(.primary)
+                                    .multilineTextAlignment(.leading)
+                                
+                                Spacer()
+                                
+                                // Sabit yıldız gösterimi (örnek: 5 yıldız dolu)
+                                HStack(spacing: 2) {
+                                    ForEach(1...5, id: \.self) { star in
+                                        Image(systemName: "star.fill")
+                                            .foregroundColor(.orange)
+                                            .font(.subheadline)
+                                    }
+                                }
+                            }
+                        }
+                        .padding()
+                        .background(Color(UIColor.systemGray6))
+                        .cornerRadius(12)
+                        .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
+                    }
+                }
+                .padding()
+            }
+            .navigationTitle("Tüm Yorumlar")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(trailing: Button("Kapat") { isPresented = false })
+        }
+    }
 }
+
+
 
 // MARK: - Data Models
 struct Review: Identifiable {

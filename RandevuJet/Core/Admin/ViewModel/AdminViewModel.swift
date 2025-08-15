@@ -24,7 +24,9 @@ class AdminViewModel: ObservableObject {
     @Published var services: [Service] = []
     @Published var appointments: [Appointment] = []
     @Published var customers: [Customer] = []
-
+    @Published var reviews: [String] = []
+    
+    
     
     private let repository = AdminRepository()
     
@@ -49,6 +51,12 @@ class AdminViewModel: ObservableObject {
             print("Fetch appointments start")
             try await fetchAllAppointmentsForAdmin()
             print("Fetch appointments end, count: \(appointments.count)")
+            
+            
+            print("fetch review ")
+            try await fetchAllReviewsForAdmin()
+            print("Fetch appointments end, count: \(reviews.count)")
+            
             isLoading = false
             print(isLoading)
         } catch {
@@ -56,8 +64,8 @@ class AdminViewModel: ObservableObject {
             print("Init data load error: \(error.localizedDescription)")
         }
     }
-
-
+    
+    
     @MainActor
     func fetchServices() async throws {
         let result = try await repository.getAllServices()
@@ -81,8 +89,18 @@ class AdminViewModel: ObservableObject {
         let result = try await repository.getAdminAllAppointments(currentUser: user)
         self.appointments = result
     }
-
-
+    
+    @MainActor
+    func fetchAllReviewsForAdmin() async throws {
+        guard let user = hairdressercurrentUser else {
+            errorMessage = "Kuaför bilgisi yok."
+            return
+        }
+        
+        let result = try await repository.getAdminAllReviews(currentUser: user)
+        self.reviews = result
+    }
+    
     func hairdresserDataUpdate(
         address: String?,
         phone: String?,
@@ -154,58 +172,69 @@ class AdminViewModel: ObservableObject {
     }
     
     func updateAppointmentStatus(appointmentId: String, newStatus: String) async {
-            isLoading = true
-            errorMessage = nil
-            do {
-                try await repository.updateAppointmentStatus(appointmentId: appointmentId, newStatus: newStatus)
-            } catch {
-                errorMessage = "Durum güncellenemedi: \(error.localizedDescription)"
-            }
-            isLoading = false
+        isLoading = true
+        errorMessage = nil
+        do {
+            try await repository.updateAppointmentStatus(appointmentId: appointmentId, newStatus: newStatus)
+        } catch {
+            errorMessage = "Durum güncellenemedi: \(error.localizedDescription)"
         }
-        
-        /// Randevuyu sil
-        func deleteAppointment(appointmentId: String) async {
-            isLoading = true
-            errorMessage = nil
-            do {
-                try await repository.deleteAppointment(appointmentId: appointmentId)
-            } catch {
-                errorMessage = "Randevu silinemedi: \(error.localizedDescription)"
-            }
-            isLoading = false
+        isLoading = false
+    }
+    
+    /// Randevuyu sil
+    func deleteAppointment(appointmentId: String) async {
+        isLoading = true
+        errorMessage = nil
+        do {
+            try await repository.deleteAppointment(appointmentId: appointmentId)
+        } catch {
+            errorMessage = "Randevu silinemedi: \(error.localizedDescription)"
         }
+        isLoading = false
+    }
     
     
     // customer list
     func addCustomer(hairdresserId: String, fullName: String, phone: String, notes: String? = nil) {
-            let newCustomer = Customer(
-                fullName: fullName,
-                phone: phone,
-                notes: notes,
-                createdAt: Date()
-            )
-            
-            repository.addCustomer(hairdresserId: hairdresserId, customer: newCustomer) { error in
-                if let error = error {
-                    print("Müşteri eklenemedi: \(error.localizedDescription)")
-                } else {
-                    print("Müşteri eklendi.")
-                    self.fetchCustomers(hairdresserId: hairdresserId)
-                }
+        let newCustomer = Customer(
+            fullName: fullName,
+            phone: phone,
+            notes: notes,
+            createdAt: Date()
+        )
+        
+        repository.addCustomer(hairdresserId: hairdresserId, customer: newCustomer) { error in
+            if let error = error {
+                print("Müşteri eklenemedi: \(error.localizedDescription)")
+            } else {
+                print("Müşteri eklendi.")
+                self.fetchCustomers(hairdresserId: hairdresserId)
             }
         }
-        
-        func fetchCustomers(hairdresserId: String) {
-            repository.getCustomers(hairdresserId: hairdresserId) { customers, error in
-                if let error = error {
-                    print("Müşteriler alınamadı: \(error.localizedDescription)")
-                    return
-                }
-                self.customers = customers ?? []
-            }
-        }
-        
+    }
     
-
+    func fetchCustomers(hairdresserId: String) {
+        repository.getCustomers(hairdresserId: hairdresserId) { customers, error in
+            if let error = error {
+                print("Müşteriler alınamadı: \(error.localizedDescription)")
+                return
+            }
+            self.customers = customers ?? []
+        }
+    }
+    
+    func deleteCustomer(hairdresserId: String, customerId: String) async {
+        do {
+            try await repository.deleteCustomer(hairdresserId: hairdresserId, customerId: customerId)
+            
+            // Silme sonrası listeden kaldır
+            self.customers.removeAll { $0.id == customerId }
+        } catch {
+            print("Müşteri silme hatası: \(error)")
+        }
+    }
+    
+    
+    
 }

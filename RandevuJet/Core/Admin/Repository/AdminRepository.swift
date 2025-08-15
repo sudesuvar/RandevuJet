@@ -164,6 +164,25 @@ class AdminRepository {
         return appointments
     }
     
+    func getAdminAllReviews(currentUser: HairDresser) async throws -> [String] {
+        let salonName = currentUser.salonName
+        print("📌 Aranan salon adı: \(salonName)")
+        
+        let snapshot = try await db.collection("appointments")
+            .whereField("salonName", isEqualTo: salonName)
+            .getDocuments()
+        
+        // Sadece review alanlarını alıyoruz
+        let reviews: [String] = snapshot.documents.compactMap { doc in
+            let data = doc.data()
+            return data["review"] as? String
+        }
+        
+        print("✅ Toplam \(reviews.count) yorum bulundu.")
+        return reviews
+    }
+    
+    
     /// Randevu durumunu güncelle
     func updateAppointmentStatus(appointmentId: String, newStatus: String) async throws {
         try await db.collection("appointments")
@@ -181,7 +200,7 @@ class AdminRepository {
     }
     
     
-
+    
     // Customer List
     func addCustomer(hairdresserId: String, customer: Customer, completion: @escaping (Error?) -> Void) {
         do {
@@ -209,6 +228,15 @@ class AdminRepository {
                 }
                 completion(customers, nil)
             }
+    }
+    
+    // MARK: - Müşteri Silme
+    func deleteCustomer(hairdresserId: String, customerId: String) async throws {
+        try await db.collection("hairdressers")
+            .document(hairdresserId)
+            .collection("customers")
+            .document(customerId)
+            .delete()
     }
     
     
