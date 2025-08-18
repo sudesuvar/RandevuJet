@@ -25,25 +25,11 @@ class AppoinmentsRepository: ObservableObject {
                 "appointmentDate": newDate,
                 "appointmentTime": newTime
             ])
-            print("Randevu başarıyla güncellendi.")
         } catch {
             print("Randevu güncelleme hatası: \(error.localizedDescription)")
             throw error
         }
     }
-    
-    
-    /*func addRewiew(review: Review) async throws {
-        let reviewRef = db.collection("reviews").document()
-        
-        do {
-            try await reviewRef.setData(from: review)
-            print("Yorum başarıyla eklendi.")
-        } catch {
-            print("Yorum ekleme hatası: \(error.localizedDescription)")
-            throw error
-        }
-    }*/
     
     func submitReview(appointmentId: String, review: String) async {
         do {
@@ -52,7 +38,6 @@ class AppoinmentsRepository: ObservableObject {
                 .updateData([
                     "review": review
                 ])
-            print("Yorum başarıyla kaydedildi.")
         } catch {
             print("Yorum kaydedilirken hata oluştu: \(error.localizedDescription)")
         }

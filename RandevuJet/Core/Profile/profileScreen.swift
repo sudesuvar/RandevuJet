@@ -1,5 +1,8 @@
+
 import Foundation
 import SwiftUI
+import FirebaseCrashlytics
+import Firebase
 
 struct profileScreen: View {
     @EnvironmentObject var authViewModel: AuthViewModel
@@ -78,9 +81,15 @@ struct profileScreen: View {
                     .padding(.horizontal)
                     
                     // Test için bir button
-                                Button("Test Değişiklik") {
+                                /*Button("Test Değişiklik") {
                                     print("Seçili Dil:", languageViewModel.selectedLanguage.rawValue)
-                                }
+                                }*/
+                  
+
+                    Button("Crash Test") {
+                        fatalError("Test Crash for Firebase Crashlytics")
+                    }
+
 
 
                     // VERSION

@@ -61,12 +61,11 @@ class AuthViewModel : ObservableObject{
                 .document(result.user.uid)
                 .setData(from: newHairdresser)
             
-            print("------------------------------")
+
             print("Success create hairdresser: \(newHairdresser)")
             try await fetchUserOrHairdresserData()
             
         } catch {
-            print("*******************************************")
             print("Debug Failed to create hairdresser: \(error.localizedDescription)")
             throw error
         }
@@ -80,7 +79,6 @@ class AuthViewModel : ObservableObject{
             
             let encoderUser = User(id: result.user.uid, nameSurname: fullName, email: email, role: role)
             try Firestore.firestore().collection("users").document(result.user.uid).setData(from: encoderUser)
-            print("User saved to Firestore: \(encoderUser)")
             try await fetchUserOrHairdresserData()
         } catch {
             print("debug failed create user: \(error.localizedDescription)")
@@ -95,7 +93,6 @@ class AuthViewModel : ObservableObject{
             self.currentUser = nil
             self.currentHairdresser = nil
             self.currentRole = nil
-            print("sign out success")
         } catch {
             print("debug failed sign out: \(error.localizedDescription)")
             throw error  // Hata fırlatmak istersen
@@ -140,7 +137,6 @@ class AuthViewModel : ObservableObject{
             
             // Ham veri olarak bak
             let data = snapshot.data()
-            print("Ham veri: \(String(describing: data))")
             
             self.currentUser = try snapshot.data(as: User.self)
             self.currentRole = self.currentUser?.role
@@ -169,7 +165,6 @@ class AuthViewModel : ObservableObject{
             
             self.currentHairdresser = try snapshot.data(as: HairDresser.self)
             self.currentRole = self.currentHairdresser?.role
-            print("successfully fetched hairdresser data: \(String(describing: currentHairdresser))")
         } catch {
             print("fetch hairdresser data çalışmıyor, hata: \(error.localizedDescription)")
         }

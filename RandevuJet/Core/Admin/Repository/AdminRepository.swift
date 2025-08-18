@@ -59,9 +59,7 @@ class AdminRepository {
         let text = data["text"] as? String
         let status = data["status"] as? String
         let workingHours = data["workingHours"] as? [String]
-        let services = data["services"] as? [String] // sadece ID listesi
-        
-        print("Hairdresser data fetched successfully.")
+        let services = data["services"] as? [String]
         
         return HairDresser(
             id: id,
@@ -103,7 +101,7 @@ class AdminRepository {
         if let employeesNumber = employeesNumber { data["employeesNumber"] = employeesNumber }
         if let text = text { data["text"] = text }
         if let services = services {
-            data["services"] = services // sadece ID'ler
+            data["services"] = services
         }
         
         var workingHours: [String] = []
@@ -138,7 +136,6 @@ class AdminRepository {
     
     func getAdminAllAppointments(currentUser: HairDresser) async throws -> [Appointment] {
         let salonName = currentUser.salonName
-        print(salonName)
         
         let snapshot = try await db.collection("appointments")
             .whereField("salonName", isEqualTo: salonName)
@@ -159,31 +156,22 @@ class AdminRepository {
             return Appointment(id: doc.documentID, customerName: customerName, customerTel: customerTel, salonName: salonName, serviceName: serviceName, appointmentDate: appointmentDate, appointmentTime: appointmentTime, status: status)
         }
         
-        
-        print("appointments: \(appointments)")
         return appointments
     }
     
     func getAdminAllReviews(currentUser: HairDresser) async throws -> [String] {
         let salonName = currentUser.salonName
-        print("📌 Aranan salon adı: \(salonName)")
-        
         let snapshot = try await db.collection("appointments")
             .whereField("salonName", isEqualTo: salonName)
             .getDocuments()
-        
-        // Sadece review alanlarını alıyoruz
         let reviews: [String] = snapshot.documents.compactMap { doc in
             let data = doc.data()
             return data["review"] as? String
         }
-        
-        print("✅ Toplam \(reviews.count) yorum bulundu.")
+
         return reviews
     }
-    
-    
-    /// Randevu durumunu güncelle
+
     func updateAppointmentStatus(appointmentId: String, newStatus: String) async throws {
         try await db.collection("appointments")
             .document(appointmentId)
@@ -191,17 +179,13 @@ class AdminRepository {
                 "status": newStatus,
             ])
     }
-    
-    /// Randevuyu sil
+
     func deleteAppointment(appointmentId: String) async throws {
         try await db.collection("appointments")
             .document(appointmentId)
             .delete()
     }
-    
-    
-    
-    // Customer List
+
     func addCustomer(hairdresserId: String, customer: Customer, completion: @escaping (Error?) -> Void) {
         do {
             _ = try db.collection("hairdressers")
@@ -230,7 +214,6 @@ class AdminRepository {
             }
     }
     
-    // MARK: - Müşteri Silme
     func deleteCustomer(hairdresserId: String, customerId: String) async throws {
         try await db.collection("hairdressers")
             .document(hairdresserId)
@@ -238,11 +221,4 @@ class AdminRepository {
             .document(customerId)
             .delete()
     }
-    
-    
-    
-    
-    
-    
-    
 }

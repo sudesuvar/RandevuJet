@@ -7,7 +7,8 @@
 
 import Foundation
 import FirebaseFirestore
-import FirebaseAuth  // <- Bu satırı ekle
+import FirebaseAuth
+import FirebaseAnalytics
 
 
 
@@ -40,28 +41,20 @@ class AdminViewModel: ObservableObject {
     func loadInitialData() async {
         isLoading = true
         do {
-            print("Fetch services start")
             try await fetchServices()
-            print("Fetch services end")
-            
-            print("Fetch hairdresser start")
             try await fetchHairdresserData()
             print("Fetch hairdresser end, currentUser: \(String(describing: hairdressercurrentUser))")
-            
-            print("Fetch appointments start")
             try await fetchAllAppointmentsForAdmin()
             print("Fetch appointments end, count: \(appointments.count)")
-            
-            
-            print("fetch review ")
             try await fetchAllReviewsForAdmin()
-            print("Fetch appointments end, count: \(reviews.count)")
             
             isLoading = false
             print(isLoading)
         } catch {
             errorMessage = error.localizedDescription
-            print("Init data load error: \(error.localizedDescription)")
+            Analytics.logEvent("admin_load_initial_data_error", parameters: [
+                            "error": error.localizedDescription as NSObject
+                        ])
         }
     }
     
@@ -69,7 +62,6 @@ class AdminViewModel: ObservableObject {
     @MainActor
     func fetchServices() async throws {
         let result = try await repository.getAllServices()
-        print(services)
         services = result
     }
     
@@ -77,29 +69,25 @@ class AdminViewModel: ObservableObject {
     func fetchHairdresserData() async throws {
         let user = try await repository.getHairdresserData()
         hairdressercurrentUser = user
+        Analytics.logEvent("hairdresser_data_fetch", parameters: ["user_id": user.id as NSObject])
     }
     
     @MainActor
     func fetchAllAppointmentsForAdmin() async throws {
-        guard let user = hairdressercurrentUser else {
-            errorMessage = "Kuaför bilgisi yok."
-            return
-        }
-        
+        guard let user = hairdressercurrentUser else { return }
         let result = try await repository.getAdminAllAppointments(currentUser: user)
-        self.appointments = result
+        appointments = result
+        Analytics.logEvent("appointments_fetch_admin", parameters: ["count": result.count as NSObject])
     }
     
     @MainActor
     func fetchAllReviewsForAdmin() async throws {
-        guard let user = hairdressercurrentUser else {
-            errorMessage = "Kuaför bilgisi yok."
-            return
-        }
-        
+        guard let user = hairdressercurrentUser else { return }
         let result = try await repository.getAdminAllReviews(currentUser: user)
-        self.reviews = result
+        reviews = result
+        Analytics.logEvent("reviews_fetch_admin", parameters: ["count": result.count as NSObject])
     }
+    
     
     func hairdresserDataUpdate(
         address: String?,
@@ -124,11 +112,11 @@ class AdminViewModel: ObservableObject {
                 workingEndTime: workingEndTime,
                 status: status
             )
-            print("💾 Hairdresser bilgileri başarıyla güncellendi.")
+            print("Hairdresser bilgileri başarıyla güncellendi.")
             try await fetchHairdresserData()
         } catch {
             errorMessage = error.localizedDescription
-            print("❌ Hairdresser güncelleme hatası: \(error.localizedDescription)")
+            print(" Hairdresser güncelleme hatası: \(error.localizedDescription)")
         }
     }
     
@@ -138,16 +126,12 @@ class AdminViewModel: ObservableObject {
         text: String?
     ) async {
         do {
-            try await repository.updateHairdresserProfile(
-                address: address,
-                phone: phone,
-                text: text
-            )
-            print("💾 Hairdresser profil bilgileri başarıyla güncellendi.")
+            try await repository.updateHairdresserProfile(address: address, phone: phone, text: text)
+            Analytics.logEvent("hairdresser_profile_update", parameters: ["user_id": hairdressercurrentUser?.id as NSObject? ?? "unknown"])
             try await fetchHairdresserData()
         } catch {
             errorMessage = error.localizedDescription
-            print("❌ Hairdresser profil güncelleme hatası: \(error.localizedDescription)")
+            Analytics.logEvent("hairdresser_profile_update_error", parameters: ["error": error.localizedDescription as NSObject])
         }
     }
     
@@ -166,7 +150,6 @@ class AdminViewModel: ObservableObject {
         if let hairdresser = try? doc.data(as: HairDresser.self) {
             hairdressercurrentUser = hairdresser
         } else {
-            print("Model decode edilemedi")
             throw NSError(domain: "AuthError", code: 401, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı bilgileri alınamadı."])
         }
     }
@@ -176,48 +159,62 @@ class AdminViewModel: ObservableObject {
         errorMessage = nil
         do {
             try await repository.updateAppointmentStatus(appointmentId: appointmentId, newStatus: newStatus)
+            Analytics.logEvent("appointment_status_update", parameters: [
+                "appointment_id": appointmentId as NSObject,
+                "new_status": newStatus as NSObject
+            ])
         } catch {
             errorMessage = "Durum güncellenemedi: \(error.localizedDescription)"
+            Analytics.logEvent("appointment_status_update_error", parameters: [
+                "appointment_id": appointmentId as NSObject,
+                "error": error.localizedDescription as NSObject
+            ])
         }
         isLoading = false
     }
     
-    /// Randevuyu sil
     func deleteAppointment(appointmentId: String) async {
         isLoading = true
         errorMessage = nil
         do {
             try await repository.deleteAppointment(appointmentId: appointmentId)
+            Analytics.logEvent("appointment_delete", parameters: ["appointment_id": appointmentId as NSObject])
         } catch {
             errorMessage = "Randevu silinemedi: \(error.localizedDescription)"
+            Analytics.logEvent("appointment_delete_error", parameters: ["appointment_id": appointmentId as NSObject, "error": error.localizedDescription as NSObject])
         }
         isLoading = false
     }
     
     
-    // customer list
     func addCustomer(hairdresserId: String, fullName: String, phone: String, notes: String? = nil) {
-        let newCustomer = Customer(
-            fullName: fullName,
-            phone: phone,
-            notes: notes,
-            createdAt: Date()
-        )
-        
-        repository.addCustomer(hairdresserId: hairdresserId, customer: newCustomer) { error in
-            if let error = error {
-                print("Müşteri eklenemedi: \(error.localizedDescription)")
-            } else {
-                print("Müşteri eklendi.")
-                self.fetchCustomers(hairdresserId: hairdresserId)
+            let newCustomer = Customer(
+                fullName: fullName,
+                phone: phone,
+                notes: notes,
+                createdAt: Date()
+            )
+            
+            repository.addCustomer(hairdresserId: hairdresserId, customer: newCustomer) { error in
+                if let error = error {
+                    Analytics.logEvent("customer_add_error", parameters: [
+                        "hairdresser_id": hairdresserId as NSObject,
+                        "error": error.localizedDescription as NSObject
+                    ])
+                } else {
+                    Analytics.logEvent("customer_add", parameters: [
+                        "hairdresser_id": hairdresserId as NSObject,
+                        "customer_name": fullName as NSObject
+                    ])
+                    self.fetchCustomers(hairdresserId: hairdresserId)
+                }
             }
         }
-    }
     
     func fetchCustomers(hairdresserId: String) {
         repository.getCustomers(hairdresserId: hairdresserId) { customers, error in
             if let error = error {
-                print("Müşteriler alınamadı: \(error.localizedDescription)")
+
                 return
             }
             self.customers = customers ?? []
@@ -225,15 +222,22 @@ class AdminViewModel: ObservableObject {
     }
     
     func deleteCustomer(hairdresserId: String, customerId: String) async {
-        do {
-            try await repository.deleteCustomer(hairdresserId: hairdresserId, customerId: customerId)
-            
-            // Silme sonrası listeden kaldır
-            self.customers.removeAll { $0.id == customerId }
-        } catch {
-            print("Müşteri silme hatası: \(error)")
-        }
-    }
+           do {
+               try await repository.deleteCustomer(hairdresserId: hairdresserId, customerId: customerId)
+               self.customers.removeAll { $0.id == customerId }
+               Analytics.logEvent("customer_delete", parameters: [
+                   "hairdresser_id": hairdresserId as NSObject,
+                   "customer_id": customerId as NSObject
+               ])
+           } catch {
+               print("Müşteri silme hatası: \(error)")
+               Analytics.logEvent("customer_delete_error", parameters: [
+                   "hairdresser_id": hairdresserId as NSObject,
+                   "customer_id": customerId as NSObject,
+                   "error": error.localizedDescription as NSObject
+               ])
+           }
+       }
     
     
     
