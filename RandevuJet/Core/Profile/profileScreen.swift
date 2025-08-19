@@ -12,10 +12,10 @@ struct profileScreen: View {
     @State private var isFeedbackSheetPresented = false
     @State private var feedbackText = ""
     @State private var isFeedbackSent = false
-
-
-
-
+    
+    
+    
+    
     var body: some View {
         if let user = authViewModel.currentUser {
             ScrollView {
@@ -29,7 +29,7 @@ struct profileScreen: View {
                             .frame(width: 72, height: 72)
                             .background(Color.gray)
                             .clipShape(Circle())
-
+                        
                         VStack(alignment: .leading, spacing: 4) {
                             Text(user.nameSurname)
                                 .font(.headline)
@@ -37,19 +37,19 @@ struct profileScreen: View {
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
-
+                        
                         Spacer()
                     }
                     .padding()
                     .background(Color(.secondarySystemGroupedBackground))
                     .cornerRadius(16)
                     .padding(.horizontal)
-
+                    
                     // TEMA
                     HStack {
                         Image(systemName: themeViewModel.isDarkMode ? "moon.fill" : "sun.max.fill")
                             .foregroundColor(.gray)
-                        Text("theme".localized(using: languageViewModel))
+                        Text(LocalizedStringKey("theme"))
                             .font(.subheadline)
                         Spacer()
                         Toggle("", isOn: $themeViewModel.isDarkMode)
@@ -59,13 +59,12 @@ struct profileScreen: View {
                     .background(Color(.secondarySystemGroupedBackground))
                     .cornerRadius(16)
                     .padding(.horizontal)
-
+                    
                     // DİL
                     HStack {
                         Text("🌐")
                             .font(.title2)
-                        Text(String(localized: "welcome"))
-                        Text("Dil")
+                        Text(LocalizedStringKey("language"))
                             .font(.subheadline)
                         Spacer()
                         Picker("", selection: $languageViewModel.selectedLanguage) {
@@ -80,23 +79,17 @@ struct profileScreen: View {
                     .cornerRadius(16)
                     .padding(.horizontal)
                     
-                    // Test için bir button
-                                /*Button("Test Değişiklik") {
-                                    print("Seçili Dil:", languageViewModel.selectedLanguage.rawValue)
-                                }*/
-                  
-
                     Button("Crash Test") {
                         fatalError("Test Crash for Firebase Crashlytics")
                     }
-
-
-
+                    
+                    
+                    
                     // VERSION
                     HStack {
                         Image(systemName: "info.circle")
                             .foregroundColor(.gray)
-                        Text("Version")
+                        Text(LocalizedStringKey("version"))
                             .font(.subheadline)
                         Spacer()
                         Text("1.0.0")
@@ -107,7 +100,7 @@ struct profileScreen: View {
                     .background(Color(.secondarySystemGroupedBackground))
                     .cornerRadius(16)
                     .padding(.horizontal)
-
+                    
                     // ÇIKIŞ YAP
                     Button(action: {
                         Task {
@@ -130,7 +123,7 @@ struct profileScreen: View {
                         .cornerRadius(16)
                         .padding(.horizontal)
                     }
-
+                    
                     // HESABI SİL
                     Button(action: {
                         Task {
@@ -144,7 +137,7 @@ struct profileScreen: View {
                         HStack {
                             Image(systemName: "trash")
                                 .foregroundColor(.gray)
-                            Text("Hesabını Sil")
+                            Text(LocalizedStringKey("delete_account"))
                                 .foregroundColor(.primary)
                             Spacer()
                         }
@@ -161,7 +154,7 @@ struct profileScreen: View {
                         HStack {
                             Image(systemName: "bubble.left.and.bubble.right.fill")
                                 .foregroundColor(.gray)
-                            Text("Geri Bildirim")
+                            Text(LocalizedStringKey("feedback"))
                                 .font(.subheadline)
                                 .foregroundColor(.primary)
                             Spacer()
@@ -173,16 +166,16 @@ struct profileScreen: View {
                     }
                     .sheet(isPresented: $isFeedbackSheetPresented) {
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("Geri Bildirim")
+                            Text(LocalizedStringKey("feedback"))
                                 .font(.title2)
                                 .bold()
-
+                            
                             TextEditor(text: $feedbackText)
                                 .frame(height: 150)
                                 .padding(8)
                                 .background(Color(.systemGray6))
                                 .cornerRadius(8)
-
+                            
                             Button(action: {
                                 Task{
                                     try await authViewModel.sendFeedback(feedback: feedbackText)
@@ -195,7 +188,7 @@ struct profileScreen: View {
                             }) {
                                 HStack {
                                     Spacer()
-                                    Text("Gönder")
+                                    Text(LocalizedStringKey("send"))
                                         .fontWeight(.semibold)
                                         .padding()
                                     Spacer()
@@ -204,43 +197,42 @@ struct profileScreen: View {
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
                             }
-
+                            
                             if isFeedbackSent {
-                                Text("Teşekkürler! Geri bildiriminiz gönderildi.")
+                                Text(LocalizedStringKey("feedback_send"))
                                     .foregroundColor(.green)
                             }
-
+                            
                             Spacer()
                         }
                         .padding()
                     }
-
                     
-                
-
+                    
+                    
+                    
                 }
-          
+                
             }
             .background(Color(.systemGroupedBackground).ignoresSafeArea())
         } else {
             ProgressView()
                 .onAppear {
                     Task {
+                        do {
+                            try await authViewModel.fetchUserData()
+                            if authViewModel.currentUser == nil {
+                                try await authViewModel.signOut()
+                            }
+                        } catch {
+                            print("Kullanıcı verisi alınamadı: \(error)")
                             do {
-                                try await authViewModel.fetchUserData()
-                                if authViewModel.currentUser == nil {
-                                    print("Firestore’da kullanıcı yok, çıkış yapılıyor...")
-                                    try await authViewModel.signOut()
-                                }
+                                try await authViewModel.signOut()
                             } catch {
-                                print("Kullanıcı verisi alınamadı: \(error)")
-                                do {
-                                    try await authViewModel.signOut()
-                                } catch {
-                                    print("Sign out hatası: \(error)")
-                                }
+                                print("Sign out hatası: \(error)")
                             }
                         }
+                    }
                 }
         }
     }

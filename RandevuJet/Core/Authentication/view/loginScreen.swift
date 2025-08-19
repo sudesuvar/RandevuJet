@@ -46,7 +46,7 @@ struct loginScreen: View {
                         .font(.system(size: 60))
                         .foregroundColor(.gray)
                 }
-                Text("Giriş Yap")
+                Text(LocalizedStringKey("log_in"))
                     .font(.title)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
@@ -110,12 +110,7 @@ struct loginScreen: View {
                         } else {
                             self.userType = .null
                         }
-                        print(isLoggedIn)
                         self.isLoggedIn = true
-                        print("giriş yaptı mı")
-                        print(isLoggedIn)
-                        print("Login successful! Role: \(authViewModel.currentRole)")
-                        print("isLoggedIn: \(isLoggedIn), userType: \(userType)")
 
                     } catch {
                         alertMessage = "Giriş başarısız: \(error.localizedDescription)"
@@ -125,7 +120,7 @@ struct loginScreen: View {
 
                 
             }) {
-                Text("Giriş Yap")
+                Text(LocalizedStringKey("log_in"))
                     .font(.headline)
                     .foregroundColor(.primary)
                     .frame(maxWidth: .infinity)
@@ -170,7 +165,7 @@ struct loginScreen: View {
                         .fill(Color.gray.opacity(0.5))
                         .frame(height: 1)
                     
-                    Text("veya")
+                    Text(LocalizedStringKey("or"))
                         .foregroundColor(.secondary)
                         .font(.system(size: 14))
                     
@@ -192,10 +187,7 @@ struct loginScreen: View {
                             .background(Color(.red))
                             .cornerRadius(25)
                     }
-                    
-                    // Apple Login
                     Button(action: {
-                        // Apple login implementation
                     }) {
                         Image(systemName: "apple.logo")
                             .font(.system(size: 20))
@@ -205,9 +197,8 @@ struct loginScreen: View {
                             .cornerRadius(25)
                     }
                     
-                    // Facebook Login
                     Button(action: {
-                        // Facebook login implementation
+                      
                     }) {
                         Image(systemName: "f.circle.fill")
                             .font(.system(size: 20))
@@ -244,7 +235,7 @@ struct loginScreen: View {
                                 .navigationBarBackButtonHidden(true)
                         }
                     }) {
-                        Text("Kayıt Ol")
+                        Text(LocalizedStringKey("sign_up"))
                             .foregroundColor(.blue)
                             .fontWeight(.semibold)
                     }
@@ -309,11 +300,11 @@ struct ForgotPasswordView: View {
                         .font(.system(size: 60))
                         .foregroundColor(.yellow)
                     
-                    Text("Şifremi Unuttum")
+                    Text(LocalizedStringKey("forgot_pass"))
                         .font(.title)
                         .fontWeight(.bold)
                     
-                    Text("Şifrenizi sıfırlamak için e-posta adresinizi girin. Size şifre sıfırlama bağlantısı göndereceğiz.")
+                    Text(LocalizedStringKey("forgot_pass_text"))
                         .font(.body)
                         .foregroundColor(.gray)
                         .multilineTextAlignment(.center)
@@ -322,7 +313,7 @@ struct ForgotPasswordView: View {
                 
                 // Email Input
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("E-posta Adresi")
+                    Text(LocalizedStringKey("email"))
                         .font(.headline)
                         .foregroundColor(.primary)
                     
@@ -352,7 +343,7 @@ struct ForgotPasswordView: View {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
                         
-                        Text("Şifre sıfırlama e-postası gönderildi!")
+                        Text(LocalizedStringKey("send_pass_email"))
                             .font(.body)
                             .foregroundColor(.green)
                     }
@@ -370,7 +361,7 @@ struct ForgotPasswordView: View {
                         //sudesuvar51@gmail.com
                     }
                 }) {
-                    Text("Gönder")
+                    Text(LocalizedStringKey("send"))
                         .font(.headline)
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)

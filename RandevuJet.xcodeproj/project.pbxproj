@@ -76,6 +76,7 @@
 			};
 			buildPhase = 9EAF01352E352A83006D6306 /* Copy Files (1 item) */;
 			membershipExceptions = (
+				"/Localized: App/Localizable.strings",
 				Assets.xcassets,
 				"GoogleService-Info.plist",
 				"Preview Content/Preview Assets.xcassets",
@@ -266,8 +267,8 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base,
 				tr,
+				Base,
 			);
 			mainGroup = 9EF671B62E277FF900D90E60;
 			minimizedProjectReferenceProxies = 1;

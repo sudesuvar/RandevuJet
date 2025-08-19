@@ -1,0 +1,52 @@
+/* 
+  Localizable.strings
+  RandevuJet
+
+  Created by sude on 19.08.2025.
+  
+*/
+"welcome_title" = "Hoşgeldiniz";
+"language" = "Dil Tercihi";
+"theme" = "Tema";
+"Version" = "Versiyon";
+"log_out" = "Çıkış Yap";
+"delete_account" = "Hesabını Sil";
+"feedback" = "Geri Bildirim";
+"send" = "Gönder";
+"feedback_send" = "Teşekkürler! Geri bildiriminiz gönderildi.";
+"new_style_new_you" = "Yeni Stil, Yeni Sen ! ";
+"splash_text" = "En iyi kuaförleri keşfet ve kolayca randevu al.";
+"user_login" = "kullanıcı girişi";
+"hairdresser_login" = "kuaför girişi";
+"services" = "Hizmetler";
+"service" = "Hizmet";
+"comments" = "yorumlar";
+"make_appointment" = "Randevu Al";
+"search_hairdresser" = "Salon Ara";
+"no_result" = "Sonuç Bulunamadı";
+"clear_search" = "Aramayı Temizle";
+"register_text" = "Yeni Üyelik Oluştur.";
+"sign_up" = "Kayıt Ol";
+"or" = "veya";
+"log_in"= "Giriş Yap";
+"already_have_account" = "Zaten bir hesabın var mı ?";
+"forgot_pass" = "Şifremi Unuttum";
+"forgot_pass_text" = "Şifrenizi sıfırlamak için e-posta adresinizi girin. Size şifre sıfırlama bağlantısı göndereceğiz.";
+"dont_have_account" = "Hesabın yok mu ? ";
+"email"= "E-posta Adresi";
+"send_pass_email"= "Şifre sıfırlama e-postası gönderildi.";
+"cancel"= "iptal";
+"customer_info"= "Müşteri Bilgileri";
+"status" = "Durum";
+"update_appointment" = "Randevuyu Düzenle";
+"cancel_appointnment" = "Randevuyu İptal Et";
+"call_hairdresser" = "Kuaförü ara";
+"customer" = "Müşteri";
+"appointment_date" = "Randevu Tarihi";
+"appointment_time" = "Randevu Saati";
+"save" = "Kaydet";
+"salon" = "Salon";
+"confirm_cancel" = "Evet, İptal Et";
+"cancel" = "İptal";
+"cancel_appointment_message" = "Bu randevuyu iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz.";
+"write_review" = "Yorumunuzu Yazın";

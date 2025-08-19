@@ -33,7 +33,7 @@ struct AppoinmentDetailScreen: View {
                                 .frame(width: 24)
                             
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Müşteri Bilgileri")
+                                Text(LocalizedStringKey("customer_info"))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 
@@ -104,7 +104,7 @@ struct AppoinmentDetailScreen: View {
                                 .frame(width: 24)
                             
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Hizmet")
+                                Text(LocalizedStringKey("service"))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 
@@ -125,7 +125,7 @@ struct AppoinmentDetailScreen: View {
                                 .frame(width: 24)
                             
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("Durum")
+                                Text(LocalizedStringKey("status"))
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 
@@ -156,7 +156,9 @@ struct AppoinmentDetailScreen: View {
                                 Image(systemName: "pencil")
                                     .font(.system(size: 16, weight: .medium))
                                 
-                                Text("Randevuyu Düzenle")
+                                Text(LocalizedStringKey("update_appointment"))
+                                
+                                
                                     .font(.headline)
                                     .fontWeight(.medium)
                             }
@@ -182,7 +184,7 @@ struct AppoinmentDetailScreen: View {
                                 Image(systemName: "xmark.circle")
                                     .font(.system(size: 16, weight: .medium))
                                 
-                                Text("Randevuyu İptal Et")
+                                Text(LocalizedStringKey("cancel_appointment"))
                                     .font(.headline)
                                     .fontWeight(.medium)
                             }
@@ -214,7 +216,7 @@ struct AppoinmentDetailScreen: View {
                                 Image(systemName: "phone.fill")
                                     .font(.system(size: 16, weight: .medium))
                                 
-                                Text("Kuaförü Ara")
+                                Text(LocalizedStringKey("call_hairdresser"))
                                     .font(.headline)
                                     .fontWeight(.medium)
                             }
@@ -236,9 +238,8 @@ struct AppoinmentDetailScreen: View {
                     // Yorum Yapma Alanı (Sadece tamamlanmışsa)
                     if appoinment.status.lowercased() == "tamamlandı" || appoinment.status.lowercased() == "completed" || appoinment.status.lowercased() == "bitti" {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Yorumunuzu Yazın")
+                            Text(LocalizedStringKey("write_review"))
                                 .font(.headline)
-                            
                             TextEditor(text: $commentText)
                                 .frame(height: 100)
                                 .padding(8)
@@ -251,7 +252,7 @@ struct AppoinmentDetailScreen: View {
                                     commentText = ""
                                 }
                             }) {
-                                Text("Gönder")
+                                Text(LocalizedStringKey("send"))
                                     .fontWeight(.medium)
                                     .frame(maxWidth: .infinity)
                                     .padding()
@@ -260,7 +261,7 @@ struct AppoinmentDetailScreen: View {
                                     .cornerRadius(8)
                             }
                             .disabled(commentText.trimmingCharacters(in: .whitespaces).isEmpty)
-
+                            
                         }
                         .padding()
                         .background(
@@ -270,7 +271,7 @@ struct AppoinmentDetailScreen: View {
                         )
                         .padding(.top, 20)
                     }
-
+                    
                     
                 }
                 .padding(.horizontal, 20)
@@ -278,15 +279,13 @@ struct AppoinmentDetailScreen: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .alert("Randevuyu İptal Et", isPresented: $showCancelAlert) {
-            Button("İptal", role: .cancel) { }
-            Button("Evet, İptal Et", role: .destructive) {
-                // Cancel appointment logic here
-                // Update status to "iptal" in Firebase
+        .alert(LocalizedStringKey("cancel_appointment"), isPresented: $showCancelAlert) {
+            Button(LocalizedStringKey("cancel"), role: .cancel) { }
+            Button(LocalizedStringKey("confirm_cancel"), role: .destructive) {
                 presentationMode.wrappedValue.dismiss()
             }
         } message: {
-            Text("Bu randevuyu iptal etmek istediğinizden emin misiniz? Bu işlem geri alınamaz.")
+            Text(LocalizedStringKey("cancel_appointment_message"))
         }
         .sheet(isPresented: $showEditSheet) {
             NavigationView {
@@ -383,11 +382,11 @@ struct EditAppointmentView: View {
     let appointmentViewModel: AppoinmentViewModel  // Parametre olarak geç
     @Environment(\.presentationMode) var presentationMode
     
+    let availableTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"]
+    
     // Düzenlenebilir state değişkenleri
     @State private var selectedDate: Date
     @State private var selectedTime: String
-    
-    let availableTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"]
     
     // Initializer
     init(appointment: Appointment, appointmentViewModel: AppoinmentViewModel) {
@@ -407,7 +406,7 @@ struct EditAppointmentView: View {
             // Sabit bilgiler
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text("Müşteri:")
+                    Text(LocalizedStringKey("Customer"))
                         .fontWeight(.medium)
                     Spacer()
                     Text(appointment.customerName)
@@ -415,7 +414,7 @@ struct EditAppointmentView: View {
                 }
                 
                 HStack {
-                    Text("Hizmet:")
+                    Text(LocalizedStringKey("service"))
                         .fontWeight(.medium)
                     Spacer()
                     Text(appointment.serviceName)
@@ -430,7 +429,7 @@ struct EditAppointmentView: View {
             VStack(spacing: 16) {
                 // Tarih seçici
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Randevu Tarihi")
+                    Text(LocalizedStringKey("appointment_date"))
                         .font(.headline)
                         .fontWeight(.medium)
                     
@@ -446,7 +445,7 @@ struct EditAppointmentView: View {
                 
                 // Saat seçici
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Randevu Saati")
+                    Text(LocalizedStringKey("appointment_time"))
                         .font(.headline)
                         .fontWeight(.medium)
                     

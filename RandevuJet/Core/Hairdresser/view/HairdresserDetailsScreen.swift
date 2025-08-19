@@ -106,7 +106,7 @@ struct HairdresserDetailsScreen: View {
                     // Sekme Seçimi
                     HStack {
                         Button(action: { selectedTab = 0 }) {
-                            Text("Hizmetler")
+                            Text(LocalizedStringKey("services"))
                                 .fontWeight(.medium)
                                 .foregroundColor(Color.yellow)
                                 .padding()
@@ -115,7 +115,7 @@ struct HairdresserDetailsScreen: View {
                                 .cornerRadius(10)
                         }
                         Button(action: { selectedTab = 1 }) {
-                            Text("Yorumlar")
+                            Text(LocalizedStringKey("comments"))
                                 .foregroundColor(Color.yellow)
                                 .fontWeight(.medium)
                                 .padding()
@@ -144,7 +144,7 @@ struct HairdresserDetailsScreen: View {
                     showBookingSheet = true
                 }
             }) {
-                Text("Randevu Al")
+                Text(LocalizedStringKey("make_appointment"))
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -169,7 +169,7 @@ struct HairdresserDetailsScreen: View {
         }
     }
 
-    // 🔁 Firestore'dan servisleri getir
+
     private func loadServices() async {
         guard let serviceIds = hairdresser.services else { return }
         do {

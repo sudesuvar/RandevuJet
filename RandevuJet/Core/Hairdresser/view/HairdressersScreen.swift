@@ -84,7 +84,8 @@ struct HairdressersScreen: View {
                             .foregroundColor(.gray.opacity(0.5))
                             .padding(.top, 60)
                         
-                        Text("Sonuç Bulunamadı")
+                        Text(LocalizedStringKey("no_result"))
+                        
                             .font(.title2)
                             .fontWeight(.semibold)
                             .foregroundColor(.primary)

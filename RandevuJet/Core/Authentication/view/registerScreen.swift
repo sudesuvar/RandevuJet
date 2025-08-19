@@ -31,7 +31,7 @@ struct registerScreen: View {
                         .font(.system(size: 60))
                         .foregroundColor(.gray)
                 }
-                Text("Yeni Üyelik Oluştur")
+                Text(LocalizedStringKey("register_text"))
                     .font(.title)
                     .fontWeight(.semibold)
                     .foregroundColor(.black)
@@ -77,15 +77,12 @@ struct registerScreen: View {
             }
             .padding(.horizontal, 32)
             
-            // Kayıt Ol Butonu
+ 
             Button(action: {
                 handleRegister()
                 Task {
                     authViewModel.checkIfEmailExists(email) { exists in
                         if exists {
-                            // Kullanıcıya uyarı ver
-                            print("Bu email zaten kayıtlı.")
-                            // Kullanıcıya alert göster
                             showAlert = true
                             alertMessage = "Bu email adresiyle kayıtlı bir kullanıcı zaten var."
                         } else {
@@ -97,7 +94,7 @@ struct registerScreen: View {
                     
                 }
             }) {
-                Text("Kayıt Ol")
+                Text(LocalizedStringKey("sign_up"))
                     .font(.headline)
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity)
@@ -113,7 +110,7 @@ struct registerScreen: View {
             VStack(spacing: 15) {
                 HStack {
                     Rectangle().fill(Color.gray.opacity(0.5)).frame(height: 1)
-                    Text("veya").foregroundColor(.black).font(.system(size: 14))
+                    Text(LocalizedStringKey("or")).foregroundColor(.black).font(.system(size: 14))
                     Rectangle().fill(Color.gray.opacity(0.5)).frame(height: 1)
                 }
                 .padding(.horizontal, 32)
@@ -135,7 +132,7 @@ struct registerScreen: View {
             
             // Giriş ekranına geçiş
             HStack {
-                Text("Zaten bir hesabın var mı?")
+                Text(LocalizedStringKey("already_have_account"))
                     .foregroundColor(.black)
                 
                 Button("Giriş Yap") {

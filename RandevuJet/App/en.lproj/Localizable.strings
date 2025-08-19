@@ -1,0 +1,56 @@
+/* 
+  Localizable.strings
+  RandevuJet
+
+  Created by sude on 19.08.2025.
+  
+*/
+"welcome_title" = "Welcome";
+"language" = "Select Language";
+"theme" = "Theme";
+"Version" = "Version";
+"log_out" = "Sign Out";
+"delete_account" = "Delete Account";
+"feedback" = "Feedback";
+"send" = "Send";
+"feedback_send" = "Thanks! Your feedback has been sent.";
+"new_style_new_you" = "New Style, New You!";
+"splash_text" = "Discover the best hairdressers and book appointments easily.";
+"user_login" = "User Login";
+"hairdresser_login" = "Hairdresser Login";
+"services" = "Services";
+"service" = "Service";
+"comments" = "Comments";
+"make_appointment" = "Make Appointment";
+"search_hairdresser" = "Search Salon";
+"no_result" = "No Results Found";
+"clear_search" = "Clear Search";
+"register_text" = "Create a New Account.";
+"sign_up" = "Sign Up";
+"or" = "or";
+"log_in" = "Log In";
+"already_have_account" = "Already have an account?";
+"forgot_pass" = "Forgot Password";
+"forgot_pass_text" = "Enter your email to reset your password. We will send you a reset link.";
+"dont_have_account" = "Don't have an account?";
+"email" = "Email Address";
+"send_pass_email" = "Password reset email sent.";
+"cancel" = "Cancel";
+"customer_info" = "Customer Information";
+"status" = "Status";
+"update_appointment" = "Update Appointment";
+"cancel_appointnment" = "Cancel Appointment";
+"call_hairdresser" = "Call Hairdresser";
+"customer" = "Customer";
+"appointment_date" = "Appointment Date";
+"appointment_time" = "Appointment Time";
+"save" = "Save";
+"customer_info" = "Customer Information";
+"appointment_date_time" = "Date & Time";
+"salon" = "Salon";
+"confirm_cancel" = "Yes, Cancel";
+"cancel" = "Cancel";
+"cancel_appointment_message" = "Are you sure you want to cancel this appointment? This action cannot be undone.";
+"call_hairdresser" = "Call Hairdresser";
+"write_review" = "Write Your Review";
+

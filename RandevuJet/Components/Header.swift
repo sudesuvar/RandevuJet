@@ -8,22 +8,6 @@ struct Header: View {
 
     var body: some View {
         HStack(spacing: 20) {
-            // Logo Section
-            /*Group {
-                if themeViewModel.isDarkMode {
-                    Image("darklogo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 96, height: 90)
-                } else {
-                    Image("logo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 96, height: 90)
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)*/
             
             // Welcome Text Section
             VStack(alignment: .leading, spacing: 4) {

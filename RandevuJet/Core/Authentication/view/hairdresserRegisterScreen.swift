@@ -41,7 +41,7 @@ struct hairdresserRegisterScreen: View {
                         .foregroundColor(.gray)
                 }
                 
-                Text("Yeni Üyelik Oluştur")
+                Text(LocalizedStringKey("register_text"))
                     .font(.title)
                     .fontWeight(.semibold)
                     .foregroundColor(.black)
@@ -96,7 +96,7 @@ struct hairdresserRegisterScreen: View {
                     try await authViewModel.createHairDresser(withEmail: email, password: password, salonName: salonName, role: "hairdresser")
                 }
             }) {
-                Text("Kayıt Ol")
+                Text(LocalizedStringKey("sign_up"))
                     .font(.headline)
                     .foregroundColor(.black)
                     .frame(maxWidth: .infinity)
@@ -115,7 +115,7 @@ struct hairdresserRegisterScreen: View {
                         .fill(Color.gray.opacity(0.5))
                         .frame(height: 1)
                     
-                    Text("veya")
+                    Text(LocalizedStringKey("or"))
                         .foregroundColor(.black)
                         .font(.system(size: 14))
                     
@@ -168,7 +168,7 @@ struct hairdresserRegisterScreen: View {
             
             // Login Sayfasına Git
             HStack {
-                Text("Zaten bir hesabın var mı?")
+                Text(LocalizedStringKey("already_have_account"))
                     .foregroundColor(.black)
                 
                 Button("Giriş Yap") {

@@ -16,6 +16,7 @@ struct splashScreen: View {
     @EnvironmentObject var hairdresserViewModel: HairdresserViewModel
     @EnvironmentObject var appoinmentViewModel: AppoinmentViewModel
     @EnvironmentObject var adminViewModel: AdminViewModel
+    @EnvironmentObject var languageViewModel: LanguageViewModel
     
     @State private var animateImage = false
     @State private var animateText = false
@@ -70,7 +71,7 @@ struct splashScreen: View {
                 .opacity(animateImage ? 1 : 0)
                 .animation(.easeOut(duration: 0.8), value: animateImage)
             
-            Text("Yeni Stil, Yeni Sen !")
+            Text(LocalizedStringKey("new_style_new_you"))
                 .font(.system(size: 28, weight: .bold))
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
@@ -79,7 +80,7 @@ struct splashScreen: View {
                 .offset(y: animateText ? 0 : -20)
                 .animation(.easeInOut(duration: 0.6).delay(0.4), value: animateText)
             
-            Text("En iyi kuaförleri keşfet ve kolayca randevu al.")
+            Text(LocalizedStringKey("splash_text"))
                 .font(.system(size: 16))
                 .foregroundColor(.primary)
                 .multilineTextAlignment(.center)
@@ -96,7 +97,7 @@ struct splashScreen: View {
                         .environmentObject(hairdresserViewModel)
                         .environmentObject(appoinmentViewModel)
                 ) {
-                    Text("Kullanıcı Girişi")
+                    Text(LocalizedStringKey("user_login"))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
@@ -118,7 +119,7 @@ struct splashScreen: View {
                         .environmentObject(hairdresserViewModel)
                         .environmentObject(appoinmentViewModel)
                 ) {
-                    Text("Kuaför Girişi")
+                    Text(LocalizedStringKey("hairdresser_login"))
                         .font(.system(size: 16, weight: .bold))
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)

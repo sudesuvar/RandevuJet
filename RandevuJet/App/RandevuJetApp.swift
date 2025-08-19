@@ -32,7 +32,10 @@ struct RandevuJetApp: App {
                     .environmentObject(adminViewModel)
                     .environmentObject(languageViewModel)
                     .preferredColorScheme(themeViewModel.isDarkMode ? .dark : .light)
+                    .environment(\.locale, Locale(identifier: languageViewModel.selectedLanguage.rawValue))
+
             }
+
         }
     }
 }
