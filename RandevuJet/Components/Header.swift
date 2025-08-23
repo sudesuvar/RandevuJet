@@ -9,7 +9,7 @@ struct Header: View {
     var body: some View {
         HStack(spacing: 20) {
             
-            // Welcome Text Section
+
             VStack(alignment: .leading, spacing: 4) {
                 Text("Tekrar Hoşgeldin!")
                     .font(.title3)
@@ -24,17 +24,13 @@ struct Header: View {
 
             Spacer()
 
-            // Notification Button
             Button(action: {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isNotificationPressed.toggle()
                 }
-                
-                // Haptic feedback
+    
                 let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
                 impactFeedback.impactOccurred()
-                
-                print("Bildirim butonuna tıklandı")
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     isNotificationPressed = false
@@ -83,7 +79,6 @@ struct Header: View {
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
         .background(
-            // Gradient background
             LinearGradient(
                 gradient: Gradient(colors: [
                     colorScheme == .dark ? Color(.systemGray6) : Color.white,
@@ -115,7 +110,6 @@ struct Header: View {
             x: 0,
             y: 4
         )
-        // Glass effect for modern look
         .background(
             RoundedRectangle(cornerRadius: 20)
                 .fill(.ultraThinMaterial)

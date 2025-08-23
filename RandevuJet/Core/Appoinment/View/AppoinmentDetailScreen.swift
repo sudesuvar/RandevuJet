@@ -145,9 +145,9 @@ struct AppoinmentDetailScreen: View {
                             .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 2)
                     )
                     
-                    // Action Buttons
+          
                     VStack(spacing: 12) {
-                        // Edit Button
+                       
                         Button(action: {
                             showEditSheet = true
                             
@@ -176,7 +176,7 @@ struct AppoinmentDetailScreen: View {
                         }
                         .disabled(appoinment.status.lowercased() == "iptal" || appoinment.status.lowercased() == "cancelled")
                         
-                        // Cancel Button
+                
                         Button(action: {
                             showCancelAlert = true
                         }) {
@@ -202,7 +202,7 @@ struct AppoinmentDetailScreen: View {
                         }
                         .disabled(appoinment.status.lowercased() == "iptal" || appoinment.status.lowercased() == "cancelled")
                         
-                        // Call Customer Button
+          
                         Button(action: {
                             if let url = URL(string: "tel://\(appoinment.customerTel)"),
                                UIApplication.shared.canOpenURL(url) {
@@ -235,7 +235,7 @@ struct AppoinmentDetailScreen: View {
                     }
                     .padding(.top, 10)
                     
-                    // Yorum Yapma Alanı (Sadece tamamlanmışsa)
+   
                     if appoinment.status.lowercased() == "tamamlandı" || appoinment.status.lowercased() == "completed" || appoinment.status.lowercased() == "bitti" {
                         VStack(alignment: .leading, spacing: 8) {
                             Text(LocalizedStringKey("write_review"))
@@ -302,8 +302,7 @@ struct AppoinmentDetailScreen: View {
             }
         }
     }
-    
-    // Helper functions for status
+ 
     private func getStatusIcon() -> String {
         switch appoinment.status.lowercased() {
         case "onaylandı", "confirmed", "onay":
@@ -350,7 +349,7 @@ struct AppoinmentDetailScreen: View {
     }
 }
 
-// Helper view for info rows
+
 struct InfoRow: View {
     let icon: String
     let title: String
@@ -384,11 +383,11 @@ struct EditAppointmentView: View {
     
     let availableTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"]
     
-    // Düzenlenebilir state değişkenleri
+
     @State private var selectedDate: Date
     @State private var selectedTime: String
     
-    // Initializer
+  
     init(appointment: Appointment, appointmentViewModel: AppoinmentViewModel) {
         self.appointment = appointment
         self.appointmentViewModel = appointmentViewModel
@@ -403,7 +402,7 @@ struct EditAppointmentView: View {
     
     var body: some View {
         VStack(spacing: 20) {
-            // Sabit bilgiler
+            
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
                     Text(LocalizedStringKey("Customer"))
@@ -425,9 +424,9 @@ struct EditAppointmentView: View {
             .background(Color(.systemGray6))
             .cornerRadius(10)
             
-            // Düzenlenebilir alanlar
+  
             VStack(spacing: 16) {
-                // Tarih seçici
+       
                 VStack(alignment: .leading, spacing: 8) {
                     Text(LocalizedStringKey("appointment_date"))
                         .font(.headline)
@@ -443,7 +442,7 @@ struct EditAppointmentView: View {
                 
                 Divider()
                 
-                // Saat seçici
+   
                 VStack(alignment: .leading, spacing: 8) {
                     Text(LocalizedStringKey("appointment_time"))
                         .font(.headline)
@@ -465,8 +464,7 @@ struct EditAppointmentView: View {
             .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 2)
             
             Spacer()
-            
-            // Kaydet butonu
+         
             Button("Kaydet") {
                 let formatter = DateFormatter()
                 formatter.dateFormat = "dd.MM.yyyy"
@@ -478,8 +476,7 @@ struct EditAppointmentView: View {
                         newDate: formattedDate,
                         newTime: selectedTime
                     )
-                    
-                    // Hata yoksa sheet'i kapat
+      
                     if appointmentViewModel.updateError == nil {
                         presentationMode.wrappedValue.dismiss()
                     }

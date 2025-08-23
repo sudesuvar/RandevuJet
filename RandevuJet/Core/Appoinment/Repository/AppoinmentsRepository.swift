@@ -10,8 +10,6 @@ import Firebase
 import FirebaseFirestore
 import FirebaseAuth
 
-
-
 class AppoinmentsRepository: ObservableObject {
     private let db = Firestore.firestore()
     @Published var userSession: FirebaseAuth.User?

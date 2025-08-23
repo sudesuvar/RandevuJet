@@ -59,7 +59,7 @@ class LanguageViewModel: ObservableObject {
         let bundlePath = Bundle.main.bundlePath
         print("Bundle path: \(bundlePath)")
         
-        // String Catalog kontrolü
+        // String Catalog kontrolü  
         print("\n🔍 String Catalog aranıyor...")
         if let path = Bundle.main.path(forResource: "Localizable", ofType: "xcstrings") {
             print("✅ String catalog bulundu: \(path)")
@@ -110,90 +110,78 @@ class LanguageViewModel: ObservableObject {
         print("📱 Sistem dili: \(systemLanguage)")
         print("🌍 Locale identifier: \(Locale.current.identifier)")
         
-        // NSLocalizedString testi
-        print("\n🧪 Yerelleştirme testleri:")
-        let testKeys = ["welcome_title", "hello", "test", "app_name"]
-        
-        for key in testKeys {
-            let localized = NSLocalizedString(key, comment: "")
-            let isTranslated = localized != key
-            print("🔤 '\(key)' → '\(localized)' \(isTranslated ? "✅" : "❌")")
-        }
+   
         
         // Localizable.strings dosyalarının içeriğini kontrol et
-        print("\n📄 Localizable.strings dosyaları kontrol ediliyor:")
+      //  print("\n📄 Localizable.strings dosyaları kontrol ediliyor:")
         for language in Language.allCases {
             if let path = Bundle.main.path(forResource: language.rawValue, ofType: "lproj") {
                 let stringsPath = "\(path)/Localizable.strings"
-                print("🔍 \(language.rawValue) strings dosyası: \(stringsPath)")
+           //     print("🔍 \(language.rawValue) strings dosyası: \(stringsPath)")
                 
                 do {
                     let content = try String(contentsOfFile: stringsPath, encoding: .utf8)
-                    print("📝 İçerik (\(content.count) karakter):")
+                  //  print("📝 İçerik (\(content.count) karakter):")
                     if content.isEmpty {
-                        print("❌ Dosya boş!")
+                //        print("❌ Dosya boş!")
                     } else {
-                        print("✅ İçerik var:")
+                //        print("✅ İçerik var:")
                         // İlk 200 karakteri göster
                         let preview = String(content.prefix(200))
-                        print("   \(preview)\(content.count > 200 ? "..." : "")")
+              //          print("   \(preview)\(content.count > 200 ? "..." : "")")
                     }
                 } catch {
-                    print("❌ Dosya okuma hatası: \(error)")
+            //        print("❌ Dosya okuma hatası: \(error)")
                 }
             }
         }
 
         // Belirli dil bundle'ı ile test
-        print("\n🌍 Dil bundle testleri:")
+      //  print("\n🌍 Dil bundle testleri:")
         for language in Language.allCases {
             if let path = Bundle.main.path(forResource: language.rawValue, ofType: "lproj"),
                let bundle = Bundle(path: path) {
                 let localized = NSLocalizedString("welcome_title", bundle: bundle, comment: "")
-                print("📦 \(language.rawValue) bundle: 'welcome_title' → '\(localized)'")
+             //   print("📦 \(language.rawValue) bundle: 'welcome_title' → '\(localized)'")
             } else {
-                print("❌ \(language.rawValue) bundle bulunamadı")
+            //    print("❌ \(language.rawValue) bundle bulunamadı")
             }
         }
         
         // Tekrar eden kod bloğu kaldırıldı
-        print("🎯 Seçili dil: \(selectedLanguage.rawValue)")
-        print("🏁 LanguageViewModel başlatma tamamlandı\n")
+      //  print("🎯 Seçili dil: \(selectedLanguage.rawValue)")
+    //   print("🏁 LanguageViewModel başlatma tamamlandı\n")
     }
     
     func localizedString(for key: String) -> String {
-        print("🔍 Çeviri isteniyor: '\(key)' (dil: \(selectedLanguage.rawValue))")
+     //   print("🔍 Çeviri isteniyor: '\(key)' (dil: \(selectedLanguage.rawValue))")
         
         // Seçili dil bundle'ını yükle
         guard let path = Bundle.main.path(forResource: selectedLanguage.rawValue, ofType: "lproj"),
               let bundle = Bundle(path: path) else {
-            print("❌ Bundle bulunamadı: \(selectedLanguage.rawValue)")
+       //     print("❌ Bundle bulunamadı: \(selectedLanguage.rawValue)")
             return key
         }
         
-        print("📁 Bundle path: \(path)")
-        
-        // Localizable.strings dosyasının varlığını kontrol et
+    //    print("📁 Bundle path: \(path)")
+
         let stringsPath = bundle.path(forResource: "Localizable", ofType: "strings")
-        print("📄 Strings dosyası: \(stringsPath ?? "bulunamadı")")
-        
-        // Bundle ile NSLocalizedString kullan
+    //    print("📄 Strings dosyası: \(stringsPath ?? "bulunamadı")")
+    
         let localized = bundle.localizedString(forKey: key, value: nil, table: nil)
-        print("📦 Bundle çevirisi: '\(key)' → '\(localized)'")
-        
-        // Eğer çeviri bulunamadıysa (key ile aynıysa) fallback dene
+     //   print("📦 Bundle çevirisi: '\(key)' → '\(localized)'")
+
         if localized == key {
-            print("⚠️ Çeviri bulunamadı, fallback deneniyor...")
-            
-            // Manuel olarak strings dosyasını oku
+      //      print("⚠️ Çeviri bulunamadı, fallback deneniyor...")
+     
             if let stringsPath = stringsPath,
                let stringsDict = NSDictionary(contentsOfFile: stringsPath) as? [String: String],
                let translation = stringsDict[key] {
-                print("✅ Manuel okuma başarılı: '\(key)' → '\(translation)'")
+            //    print("✅ Manuel okuma başarılı: '\(key)' → '\(translation)'")
                 return translation
             }
             
-            print("❌ Manuel okuma da başarısız")
+           // print("❌ Manuel okuma da başarısız")
         }
         
         return localized

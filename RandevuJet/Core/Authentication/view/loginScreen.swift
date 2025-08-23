@@ -34,13 +34,12 @@ struct loginScreen: View {
     var body: some View {
         VStack(spacing: 30) {
             Spacer()
-            // Başlık
             VStack(spacing: 4) {
                 if(themeViewModel.isDarkMode){
                     Image("darklogo")
                         .font(.system(size: 60))
                         .foregroundColor(.gray)
-                    //
+    
                 }else{
                     Image("logo")
                         .font(.system(size: 60))
@@ -52,9 +51,9 @@ struct loginScreen: View {
                     .foregroundColor(.primary)
             }
             
-            // Giriş Formu
+
             VStack(spacing: 16) {
-                // E-posta
+       
                 TextField("E-posta", text: $email)
                     .textFieldStyle(.plain)
                     .keyboardType(.emailAddress)
@@ -63,7 +62,7 @@ struct loginScreen: View {
                     .background(Color(.secondarySystemBackground))
                     .cornerRadius(10)
                 
-                // Şifre
+
                 HStack {
                     ZStack {
                         TextField("Şifre", text: $password)
@@ -84,7 +83,7 @@ struct loginScreen: View {
                 .background(Color(.secondarySystemBackground))
                 .cornerRadius(10)
                 
-                // Şifremi Unuttum
+             
                 HStack {
                     Spacer()
                     Button("Şifremi Unuttum") {
@@ -96,11 +95,11 @@ struct loginScreen: View {
             }
             .padding(.horizontal, 32)
             
-            // Giriş Butonu
+      
             Button(action: {
-                //handleLogin()
                 Task {
                     do {
+                        AppLogger.ui.debug("Login buttton clicked")
                         try await authViewModel.signIn(withEmail: email, password: password)
 
                         if authViewModel.currentRole == "customer" {
@@ -213,7 +212,7 @@ struct loginScreen: View {
                 
                 Spacer()
                 
-                // Kayıt Ol
+              
                 HStack {
                     Text("Hesabın yok mu ?")
                         .foregroundColor(.secondary)
@@ -311,7 +310,7 @@ struct ForgotPasswordView: View {
                         .padding(.horizontal, 20)
                 }
                 
-                // Email Input
+            
                 VStack(alignment: .leading, spacing: 10) {
                     Text(LocalizedStringKey("email"))
                         .font(.headline)
@@ -337,7 +336,7 @@ struct ForgotPasswordView: View {
                 }
                 .padding(.horizontal, 20)
                 
-                // Success Message
+      
                 if showSuccessMessage {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
@@ -353,7 +352,7 @@ struct ForgotPasswordView: View {
                     .padding(.horizontal, 20)
                 }
                 
-                // Send Button
+         
                 Button(action: {
                     Task {
                         try await authViewModel.sendPasswordResetEmail(toEmail: email)

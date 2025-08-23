@@ -34,7 +34,7 @@ struct AppoinmentsScreen: View {
     
     var body: some View {
             VStack(spacing: 8) {
-                // 🔍 Custom SearchBar
+         
                 HStack {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.gray)
@@ -65,7 +65,7 @@ struct AppoinmentsScreen: View {
                 )
                 .padding(.horizontal)
 
-                // 🔹 Filtre Chip’leri
+       
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
                         ForEach(filters, id: \.self) { filter in
@@ -77,7 +77,6 @@ struct AppoinmentsScreen: View {
                     .padding(.horizontal)
                 }
 
-                // 🔹 Randevu Listesi
                 ScrollView {
                     if filteredAppointments.isEmpty {
                         EmptyList.appointments()

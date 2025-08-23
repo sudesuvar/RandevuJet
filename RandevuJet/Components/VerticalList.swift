@@ -180,7 +180,6 @@ struct StatusBadge: View {
     }
 }
 
-// Appointment status enum (optional - you can use this if you want to refactor your data model)
 enum AppointmentStatus: String, CaseIterable {
     case pending = "pending"
     case confirmed = "confirmed"

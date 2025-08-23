@@ -18,7 +18,7 @@ class AuthViewModel : ObservableObject{
     @Published var currentHairdresser: HairDresser?
     @Published var currentRole: String? = nil
     @Published var isLoading: Bool = true
-
+    
     
     
     //init
@@ -33,19 +33,21 @@ class AuthViewModel : ObservableObject{
             }
         }
     }
-
+    
     
     //sign
     func signIn(withEmail email: String, password: String) async throws {
         do {
+            AppLogger.auth.info("Kullanıcı giriş yapmaya çalışıyor. Email: \(email, privacy: .public)")
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
             self.userSession = result.user
-            
             try await fetchUserOrHairdresserData()
-            
+    
         } catch {
             print("debug failed sign in:\(error.localizedDescription)")
+            AppLogger.auth.error("Giriş başarısız: \(error.localizedDescription)")
             throw error
+            //
         }
         
     }
@@ -54,19 +56,16 @@ class AuthViewModel : ObservableObject{
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             self.userSession = result.user
-            
             let newHairdresser = HairDresser(id: result.user.uid, salonName: salonName, email: email, role: role)
+            AppLogger.auth.info("Kuaför oluşturuluyor. Email: \(newHairdresser.salonName, privacy: .public)")
             try Firestore.firestore()
                 .collection("hairdressers")
                 .document(result.user.uid)
                 .setData(from: newHairdresser)
-            
-
-            print("Success create hairdresser: \(newHairdresser)")
             try await fetchUserOrHairdresserData()
             
         } catch {
-            print("Debug Failed to create hairdresser: \(error.localizedDescription)")
+            AppLogger.auth.error("Debug Failed to create hairdresser: \(error.localizedDescription)")
             throw error
         }
     }
@@ -76,12 +75,12 @@ class AuthViewModel : ObservableObject{
         do {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             self.userSession = result.user
-            
             let encoderUser = User(id: result.user.uid, nameSurname: fullName, email: email, role: role)
+            AppLogger.auth.info("Kullanıcı oluşturuluyor. Email: \(encoderUser.email , privacy: .public)")
             try Firestore.firestore().collection("users").document(result.user.uid).setData(from: encoderUser)
             try await fetchUserOrHairdresserData()
         } catch {
-            print("debug failed create user: \(error.localizedDescription)")
+            AppLogger.auth.error("Debug Failed to create user: \(error.localizedDescription)")
         }
     }
     
@@ -94,8 +93,8 @@ class AuthViewModel : ObservableObject{
             self.currentHairdresser = nil
             self.currentRole = nil
         } catch {
-            print("debug failed sign out: \(error.localizedDescription)")
-            throw error  // Hata fırlatmak istersen
+            AppLogger.auth.error("Debug Failed to sign out: \(error.localizedDescription)")
+            throw error
         }
     }
     
@@ -104,9 +103,8 @@ class AuthViewModel : ObservableObject{
             try await Auth.auth().currentUser?.delete()
             self.userSession = nil
             self.currentUser = nil
-            print("delete user success")
         }catch{
-            print("debug failed delete user: \(error.localizedDescription)")
+            AppLogger.auth.error("Debug Failed to delete User: \(error.localizedDescription)")
         }
         
     }
@@ -115,8 +113,9 @@ class AuthViewModel : ObservableObject{
     func sendPasswordResetEmail(toEmail email: String) async throws {
         do {
             try await Auth.auth().sendPasswordReset(withEmail: email)
+            AppLogger.auth.info("Debug Password reset email sent successfully")
         }catch{
-            print("debug failed send password reset email: \(error.localizedDescription)")
+            AppLogger.auth.error("debug failed send password reset email: \(error.localizedDescription)")
         }
         
     }
@@ -124,52 +123,46 @@ class AuthViewModel : ObservableObject{
     @MainActor
     func fetchUserData() async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
-            print("Kullanıcı oturumu yok")
+            AppLogger.auth.error("Debug Failed to get current user uid")
             return
         }
         
         do {
             let snapshot = try await Firestore.firestore().collection("users").document(uid).getDocument()
             guard snapshot.exists else {
-                print("Kullanıcı verisi bulunamadı")
+                AppLogger.auth.error("Debug Failed to get user document")
                 return
             }
-            
-            // Ham veri olarak bak
             let data = snapshot.data()
             
             self.currentUser = try snapshot.data(as: User.self)
             self.currentRole = self.currentUser?.role
-            print("successfully fetched user data: \(String(describing: currentUser))")
+            AppLogger.auth.info("Debug successfully fetched user data")
         } catch {
-            print("fetch user data çalışmıyor, hata: \(error.localizedDescription)")
+            AppLogger.auth.error("debug fetch user data: \(error.localizedDescription)")
         }
     }
     
     @MainActor
     func fetchHairdresserData() async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
-            print("Kullanıcı oturumu yok")
+            AppLogger.auth.error("Debug Failed to get current user uid")
             return
         }
         
         do {
             let snapshot = try await Firestore.firestore().collection("hairdressers").document(uid).getDocument()
             guard snapshot.exists else {
-                print("Kuaför verisi bulunamadı")
+                AppLogger.auth.error("Debug Failed to get current user data")
                 return
             }
-            
             let data = snapshot.data()
-            print("Ham veri (hairdresser): \(String(describing: data))")
-            
             self.currentHairdresser = try snapshot.data(as: HairDresser.self)
             self.currentRole = self.currentHairdresser?.role
         } catch {
-            print("fetch hairdresser data çalışmıyor, hata: \(error.localizedDescription)")
+            AppLogger.auth.error("debug fetch hairdresser data: \(error.localizedDescription)")
         }
     }
-    
     
     
     
@@ -177,8 +170,10 @@ class AuthViewModel : ObservableObject{
         guard let uid = Auth.auth().currentUser?.uid else { return }
         do{
             try await Firestore.firestore().collection("feedback").addDocument(data: ["uid": uid, "feedback": feedback, "createdAt" : Timestamp(date: Date())])
+            AppLogger.auth.info("send feedback success")
         }catch{
-            print("debug failed send feedback: \(error.localizedDescription)")
+            AppLogger.auth.error("debug fetch send feedback: \(error.localizedDescription)")
+            
         }
     }
     
@@ -196,73 +191,66 @@ class AuthViewModel : ObservableObject{
     @MainActor
     func fetchUserOrHairdresserData() async throws {
         isLoading = true
-        defer { isLoading = false }  // Fonksiyon sonunda kesin çalışacak
-
+        defer { isLoading = false }
+        
         guard let uid = userSession?.uid else {
-            print("[fetchUserOrHairdresserData] Kullanıcı oturumu bulunamadı.")
             throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı oturumu bulunamadı."])
         }
         
         let userRef = Firestore.firestore().collection("users").document(uid)
         let hairdresserRef = Firestore.firestore().collection("hairdressers").document(uid)
-
+        
         do {
-            print("[fetchUserOrHairdresserData] Kullanıcı verisi sorgulanıyor: users/\(uid)")
             let userDoc = try await userRef.getDocument()
-            
             if userDoc.exists {
                 if let userData = userDoc.data() {
-                    print("[fetchUserOrHairdresserData] Kullanıcı verisi Firestore'dan geldi: \(userData)")
+                    //print("[fetchUserOrHairdresserData] Kullanıcı verisi Firestore'dan geldi: \(userData)")
+                    AppLogger.auth.info("fetch user data")
                 } else {
-                    print("[fetchUserOrHairdresserData] Kullanıcı dokümanında veri yok.")
+                    //print("[fetchUserOrHairdresserData] Kullanıcı dokümanında veri yok.")
                 }
-                
                 do {
                     self.currentUser = try userDoc.data(as: User.self)
                     self.currentRole = "customer"
-                    print("[fetchUserOrHairdresserData] Kullanıcı decode edildi: \(String(describing: currentUser))")
+                    //print("[fetchUserOrHairdresserData] Kullanıcı decode edildi: \(String(describing: currentUser))")
                     return
                 } catch {
-                    print("[fetchUserOrHairdresserData] Kullanıcı decode hatası: \(error)")
+               //     print("[fetchUserOrHairdresserData] Kullanıcı decode hatası: \(error)")
                     throw error
                 }
             } else {
-                print("[fetchUserOrHairdresserData] Kullanıcı dokümanı bulunamadı.")
+             //   print("[fetchUserOrHairdresserData] Kullanıcı dokümanı bulunamadı.")
             }
         } catch {
-            print("[fetchUserOrHairdresserData] Kullanıcı verisi alınırken hata: \(error)")
+           // print("[fetchUserOrHairdresserData] Kullanıcı verisi alınırken hata: \(error)")
             throw error
         }
-
+        
         do {
-            print("[fetchUserOrHairdresserData] Kuaför verisi sorgulanıyor: hairdressers/\(uid)")
+           // print("[fetchUserOrHairdresserData] Kuaför verisi sorgulanıyor: hairdressers/\(uid)")
             let hairdresserDoc = try await hairdresserRef.getDocument()
             
             if hairdresserDoc.exists {
                 if let hairdresserData = hairdresserDoc.data() {
-                    print("[fetchUserOrHairdresserData] Kuaför verisi Firestore'dan geldi: \(hairdresserData)")
+                    //print("[fetchUserOrHairdresserData] Kuaför verisi Firestore'dan geldi: \(hairdresserData)")
                 } else {
-                    print("[fetchUserOrHairdresserData] Kuaför dokümanında veri yok.")
+                    //print("[fetchUserOrHairdresserData] Kuaför dokümanında veri yok.")
                 }
                 
                 do {
                     self.currentHairdresser = try hairdresserDoc.data(as: HairDresser.self)
                     self.currentRole = "hairdresser"
-                    print("[fetchUserOrHairdresserData] Kuaför decode edildi: \(String(describing: currentHairdresser))")
+                    //print("[fetchUserOrHairdresserData] Kuaför decode edildi: \(String(describing: currentHairdresser))")
                     return
                 } catch {
-                    print("[fetchUserOrHairdresserData] Kuaför decode hatası: \(error)")
+                    //print("[fetchUserOrHairdresserData] Kuaför decode hatası: \(error)")
                     throw error
                 }
             } else {
-                print("[fetchUserOrHairdresserData] Kuaför dokümanı bulunamadı.")
             }
         } catch {
-            print("[fetchUserOrHairdresserData] Kuaför verisi alınırken hata: \(error)")
             throw error
         }
-
-        print("[fetchUserOrHairdresserData] Kullanıcı veya kuaför bilgisi bulunamadı.")
         throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Kullanıcı bilgileri alınamadı."])
     }
     
@@ -274,7 +262,7 @@ class AuthViewModel : ObservableObject{
                 completion(false)
                 return
             }
-
+            
             if let data = result?.data as? [String: Any],
                let exists = data["exists"] as? Bool {
                 completion(exists)
@@ -283,11 +271,4 @@ class AuthViewModel : ObservableObject{
             }
         }
     }
-
-
-
-
-    
-    
-    
 }

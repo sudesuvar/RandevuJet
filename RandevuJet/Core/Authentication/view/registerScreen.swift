@@ -18,7 +18,6 @@ struct registerScreen: View {
         VStack(spacing: 30) {
             Spacer()
             
-            // Başlık
             VStack(spacing: 4) {
                 
                 if(themeViewModel.isDarkMode){
